@@ -1,0 +1,15 @@
+---
+description: 所有下拉、单选列表必须使用 shadcn Select，禁止使用原生 select 或自定义下拉
+alwaysApply: false
+globs: "**/*.tsx"
+---
+
+# 下拉组件使用 shadcn Select
+
+实现或修改任何**下拉选择、单选列表**时，必须优先使用 shadcn 的 **Select** 组件，不要使用原生 `<select>` 或自己实现的下拉。
+
+- **技能**：阅读并遵循 `.cursor/skills/using-shadcn-select/SKILL.md`
+- **组件路径**：`@/components/ui/select`（Select, SelectTrigger, SelectValue, SelectContent, SelectItem）
+- **已使用处**：InputForm 视觉风格、PromptTemplateManager 新建模板、模板库方案编辑
+
+类似场景（如筛选、设置项、表单里的“选一项”）一律用 shadcn Select 实现。

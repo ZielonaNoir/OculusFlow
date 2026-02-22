@@ -1,0 +1,15 @@
+---
+description: Iterative Edit -> Verify -> Fix cycle for resolving code issues (max 20 rounds)
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+# Iterative Fix Loop
+
+When fixing code issues, follow this cycle for **up to 20 rounds**:
+
+1. **Identify**: Run `npx tsc --noEmit` and `npm run lint` to categorize errors.
+2. **Isolate**: Fix one category at a time (Type Errors → Lint → Logic).
+3. **Verify**: Run the relevant command after each fix.
+4. **Regression Check**: Run both `npx tsc --noEmit && npm run lint` before proceeding.
+5. **Repeat** until 0 errors or round 20.

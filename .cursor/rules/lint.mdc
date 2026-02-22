@@ -1,0 +1,13 @@
+---
+description: Run ESLint before completing code changes
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+# Lint
+
+Before completing code changes, run:
+
+```bash
+npm run lint
+```

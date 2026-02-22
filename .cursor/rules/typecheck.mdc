@@ -1,0 +1,13 @@
+---
+description: Run TypeScript type checking before completing changes
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeCheck
+
+Before completing TypeScript changes, run:
+
+```bash
+npx tsc --noEmit
+```

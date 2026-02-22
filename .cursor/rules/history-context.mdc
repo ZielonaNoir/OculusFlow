@@ -1,0 +1,12 @@
+---
+description: Summarize session progress from task and walkthrough files
+alwaysApply: false
+---
+
+# History Context
+
+To understand session progress:
+
+1. Read `task.md` and `walkthrough.md`.
+2. Review Conversation History in context.
+3. Provide a concise summary of accomplishments and key activities.

@@ -1,0 +1,14 @@
+---
+description: Audit frontend UI requirements against database schema
+globs: **/migrations/**/*.sql,**/lib/db*.ts,**/lib/*.ts
+alwaysApply: false
+---
+
+# Data Gap Monitoring
+
+When auditing data layer:
+
+1. Fetch schema: `SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema='public'`.
+2. Inspect UI data points (Profile, Chat, Lists).
+3. Compare: missing tables, missing columns, type mismatches.
+4. Update `data_gap_analysis.md` with findings and proposed SQL.

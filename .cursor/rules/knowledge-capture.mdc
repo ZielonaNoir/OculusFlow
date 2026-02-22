@@ -1,0 +1,14 @@
+---
+description: Capture learnings and update skills after resolving complex issues
+alwaysApply: false
+---
+
+# Knowledge Capture
+
+After resolving difficult bugs or implementing complex features:
+
+1. **Identify**: Did we solve something undocumented? Invent a repeatable pattern?
+2. **Check**: List `.cursor/skills` for existing skills to update.
+3. **Update/Create**: Edit SKILL.md or create new skill under `.cursor/skills/<name>/`.
+4. **Workflows**: If the solution involved a sequence, create `.cursor/rules/<name>.mdc`.
+5. **Document**: Update task.md or walkthrough.md with changes.

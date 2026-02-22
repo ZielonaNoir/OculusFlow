@@ -1,0 +1,41 @@
+---
+description: Oculus Flow 数据流、关键组件与 API 约定，供四视图与详情页开发时引用
+alwaysApply: false
+globs: app/oculus-flow/**/*,components/oculus-flow/**/*,app/api/oculus/**/*
+---
+
+# Oculus Flow 上下文
+
+Oculus Flow 是京东详情页 AI 生成工作流：左侧录入产品信息与参考图，右侧展示方案与生成图。详见 `docs/补充 PRD.md`、`docs/Oculus Flow 全视之流 PRD.md`。
+
+## 数据流概览
+
+- **表单状态**：`OculusFormData`（见 `components/oculus-flow/types.ts`）由左侧 `InputForm` 维护，通过 `onFormChange` 同步到页面 `currentFormData`。
+- **关键字段**：
+  - `productImages: (File | string)[]` — 产品参考图（最多 6 张），第一张作为四视图与图生图主参考。
+  - `fourViewImage?: string | null` — 生成的四视图图（URL 或 base64 data URL），用于左侧展示、下载，以及（若勾选）作为详情页模块图生图的参考。
+  - `useFourViewRef?: boolean` — 是否在生成详情页各模块图时使用 `fourViewImage` 作为参考图。
+- **页面层**：`app/oculus-flow/page.tsx` 持有 `currentFormData`，将 `productImages`、`fourViewImage`、`useFourViewRef` 传给右侧 `PreviewPanel`，以便右侧展示与调用 `/api/oculus/image` 时携带参考图。
+
+## 关键组件
+
+| 组件 | 路径 | 职责 |
+|------|------|------|
+| InputForm | `components/oculus-flow/InputForm.tsx` | 产品信息与参考图上传、四视图区块（生成按钮、展示、下载）、提交「生成详情页方案」。 |
+| GenerateFourViewButton | 同上（内联） | 将 `productImages[0]` 转为 base64，调用 `/api/oculus/image`（moduleType: `four_view`），用返回的 image_url/b64 更新 `fourViewImage`。 |
+| PreviewPanel | `components/oculus-flow/PreviewPanel.tsx` | 展示 LLM 方案卡片、各模块图生成（调用 `/api/oculus/image` 时按 `useFourViewRef` 与 `productImages` 决定 refImages）。 |
+| VariantCard | 同上（内联） | 单套方案卡片，生成模块图时若 `useFourViewRef && fourViewImage` 则 refImages 用四视图，否则用 productImages。 |
+
+## API 路由
+
+- **POST `/api/oculus/image`**（`app/api/oculus/image/route.ts`）
+  - Body: `{ prompt, moduleType, modelId?, refImages?: string[] }`。`refImages` 为 base64 data URL 或 URL 字符串数组。
+  - 图生图时转发给火山方舟时**参考图参数名为 `image`**（单图传 string，多图传 array），见 [Ark 图片生成 API 文档](https://www.volcengine.com/docs/82379/1541523)。返回 `{ image_url, status? }`；若 Ark 返回 b64，则 `image_url` 为 data URL。
+  - `moduleType === "four_view"` 时必须携带至少一张参考图，否则可返回 400。
+- **POST `/api/oculus/generate`**
+  - Body: 表单字段（含 `fourViewImage`、`useFourViewRef`），返回 LLM 方案 `{ variants }`。
+
+## 四视图与图生图约定（参考 docs/补充 PRD.md）
+
+- 四视图：用户上传产品参考图后点击「生成四视图」，请求需携带 `refImages: [主参考图]`，生成正/侧/背/透四宫格图。
+- 详情页模块：M01/M03/M06 等为图生图，需传入参考图（用户产品图或四视图）；M02/M05 等为文生图；M07/M08 前端渲染。参考图来源由 `useFourViewRef` 与 `fourViewImage`、`productImages` 决定。
