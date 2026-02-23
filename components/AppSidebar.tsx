@@ -9,10 +9,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const sidebarItems = [
   { title: "Overview", href: "/", icon: "lucide:layout-dashboard" },
+  { title: "服装智能体", href: "/apparel-agent", icon: "lucide:bot" },
+  { title: "保健品智能体", href: "/supplement-agent", icon: "lucide:flask-conical" },
+  { title: "主播排班", href: "/host-scheduling", icon: "lucide:calendar-clock" },
+  { title: "AI 盯盘", href: "/campaign-monitor", icon: "lucide:radar" },
   { title: "Oculus Flow", href: "/oculus-flow", icon: "lucide:sparkles" },
   { title: "模板库", href: "/template-library", icon: "lucide:library" },
   { title: "Settings", href: "/settings", icon: "lucide:settings-2" },
 ];
+
 
 const SIDEBAR_WIDTH_EXPANDED = 256; // w-64
 const SIDEBAR_WIDTH_COLLAPSED = 64;  // w-16
@@ -47,9 +52,17 @@ export function AppSidebar({
             collapsed ? "mb-6 justify-center" : "mb-8 gap-4"
           )}
         >
-          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-black shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all duration-300">
-            <div className="absolute inset-0 rounded-xl bg-white/5 opacity-0 transition-opacity hover:opacity-100" />
-            <Icon icon="lucide:infinity" className="h-6 w-6 text-white drop-shadow-md" />
+          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-[#0a0a0c] shadow-[0_0_15px_rgba(100,150,255,0.1)] transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-linear-to-br from-indigo-500/20 to-purple-500/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative z-10 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+               {/* Outer Diamond/Eye Shape */}
+               <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+               {/* Inner Flow Lines */}
+               <path d="M7 12C7 12 9 8 12 8C15 8 17 12 17 12C17 12 15 16 12 16C9 16 7 12 7 12Z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+               {/* Center Node/Pupil */}
+               <circle cx="12" cy="12" r="2" fill="currentColor" />
+               <path d="M12 2V5M12 19V22M2 12H5M19 12H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40" />
+            </svg>
           </div>
           <AnimatePresence mode="wait">
             {!collapsed && (
@@ -61,10 +74,10 @@ export function AppSidebar({
                 className="flex flex-col overflow-hidden"
               >
                 <span className="whitespace-nowrap text-lg font-bold leading-none tracking-tight text-white">
-                  Antigravity
+                  Oculus Flow
                 </span>
-                <span className="mt-1 whitespace-nowrap text-[10px] font-medium uppercase tracking-widest text-blue-400/80">
-                  Workspace
+                <span className="mt-1 whitespace-nowrap text-[10px] font-medium uppercase tracking-widest text-indigo-400">
+                  全视之流 • 智能引擎
                 </span>
               </motion.div>
             )}

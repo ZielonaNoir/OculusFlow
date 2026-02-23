@@ -372,28 +372,48 @@ format(date, "PPP"); // For display (e.g., "December 25, 2024")
 const utcDate = new Date(date.toISOString());
 ```
 
-## Project-Specific Guidelines
+## Project-Specific Guidelines (OculusFlow)
 
-### Required Props for VetFlow
+### Date Picker Use Cases in OculusFlow
 
-For all date pickers in the Pet Insurance System:
+| Feature                         | Component            | Constraint                    |
+| ------------------------------- | -------------------- | ----------------------------- |
+| 主播排班日期 (Host Scheduling)  | `HostInputPanel.tsx` | 禁用过去日期 (`date < today`) |
+| 投流盯盘时段 (Campaign Monitor) | 未来扩展             | 允许过去日期（查询历史）      |
 
-1. **Birth Date**: Must disable future dates
-2. **Insurance Date**: Must disable past dates
-3. **Vaccination Date**: Allow past and future dates
-4. **Appointment Date**: Disable past dates and weekends (if needed)
-
-### Example for Pet Birth Date
+### Example: Host Scheduling Date Picker
 
 ```tsx
 <Calendar
   mode="single"
-  selected={birthDate}
-  onSelect={setBirthDate}
-  disabled={(date) => date > new Date() || date < new Date("1950-01-01")}
-  initialFocus
+  selected={targetDate}
+  onSelect={(d) => {
+    if (d) {
+      setTargetDate(d);
+      setCalendarOpen(false);
+    }
+  }}
+  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
   locale={zhCN}
+  initialFocus
 />
+```
+
+### Dark Mode Styling (Required)
+
+All Popover containers in OculusFlow must use dark theme classes:
+
+```tsx
+<PopoverContent className="w-auto p-0 bg-zinc-900 border-white/10" align="start">
+```
+
+The trigger button should follow:
+
+```tsx
+<Button
+  variant="outline"
+  className="w-full justify-start text-left font-normal bg-black/30 border-white/10 text-white hover:bg-white/5 hover:text-white"
+>
 ```
 
 ## Common Pitfalls

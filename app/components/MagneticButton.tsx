@@ -1,14 +1,13 @@
 "use client";
 
-import { useRef, useState, MouseEvent, ReactNode } from "react";
+import { useRef, useState, MouseEvent, ReactNode, ButtonHTMLAttributes } from "react";
 
-interface MagneticButtonProps {
+interface MagneticButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   className?: string;
-  onClick?: () => void;
 }
 
-export default function MagneticButton({ children, className = "", onClick }: MagneticButtonProps) {
+export default function MagneticButton({ children, className = "", onClick, ...props }: MagneticButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -30,6 +29,7 @@ export default function MagneticButton({ children, className = "", onClick }: Ma
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
+      {...props}
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
       className={`relative transition-transform duration-200 ease-out will-change-transform ${className}`}
     >

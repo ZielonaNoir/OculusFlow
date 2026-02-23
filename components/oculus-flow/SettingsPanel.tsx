@@ -4,6 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { getModelPrice } from "@/lib/pricing";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 interface Model {
   id: string;
@@ -90,6 +93,117 @@ export function SettingsPanel() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const renderModelCard = (model: Model, color: "blue" | "teal" | "purple" | "amber") => {
+    const isSelected = selectedTextModel === model.id;
+    const colors = {
+      blue: {
+        border: "border-blue-500/40",
+        bg: "bg-blue-950/30",
+        radio: "border-blue-400 bg-blue-400",
+        icon: "text-blue-400",
+        shadow: "shadow-[0_0_15px_rgba(59,130,246,0.3)]",
+      },
+      teal: {
+        border: "border-teal-500/40",
+        bg: "bg-teal-950/30",
+        radio: "border-teal-400 bg-teal-400",
+        icon: "text-teal-400",
+        shadow: "shadow-[0_0_15px_rgba(20,184,166,0.3)]",
+      },
+      purple: {
+        border: "border-purple-500/40",
+        bg: "bg-purple-950/30",
+        radio: "border-purple-400 bg-purple-400",
+        icon: "text-purple-400",
+        shadow: "shadow-[0_0_15px_rgba(168,85,247,0.3)]",
+      },
+      amber: {
+        border: "border-amber-500/40",
+        bg: "bg-amber-950/30",
+        radio: "border-amber-400 bg-amber-400",
+        icon: "text-amber-400",
+        shadow: "shadow-[0_0_15px_rgba(245,158,11,0.3)]",
+      },
+    };
+    const c = colors[color];
+    const priceInfo = getModelPrice(model.id, model.display_name);
+
+    return (
+      <motion.label
+        key={model.id}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        className={cn(
+          "flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition-all duration-300",
+          isSelected
+            ? `${c.border} ${c.bg} ${c.shadow}`
+            : "border-white/5 bg-white/3 hover:border-white/10 hover:bg-white/5"
+        )}
+      >
+        <input
+          type="radio"
+          name="textModel"
+          value={model.id}
+          checked={isSelected}
+          onChange={() => setSelectedTextModel(model.id)}
+          className="sr-only"
+        />
+        <div
+          className={cn(
+            "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+            isSelected ? c.radio : "border-zinc-600"
+          )}
+        >
+          {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+        </div>
+        <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 items-center">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-white flex items-center gap-2">
+              {model.display_name}
+              {priceInfo && (
+                <span className="inline-flex rounded bg-white/10 px-1.5 py-0.5 text-[10px] whitespace-nowrap text-zinc-300 font-mono sm:hidden">
+                  {priceInfo.in} / {priceInfo.out} 元
+                </span>
+              )}
+            </p>
+            <p className="truncate text-xs text-zinc-500 font-mono mt-0.5">
+              {model.id}
+            </p>
+          </div>
+          
+          {/* Detailed Pricing Data on larger screens */}
+          {priceInfo && (
+             <div className="hidden sm:flex col-span-1 lg:col-span-2 items-center gap-4 text-[11px] text-zinc-400 font-mono md:justify-end pr-2 opacity-80 transition-opacity hover:opacity-100">
+               <div className="flex items-center gap-1.5">
+                  <Icon icon="lucide:arrow-down-to-line" className="h-3.5 w-3.5 text-zinc-500" />
+                  <span>输入: {priceInfo.in} 元 / K</span>
+               </div>
+               <div className="flex items-center gap-1.5">
+                  <Icon icon="lucide:arrow-up-from-line" className="h-3.5 w-3.5 text-zinc-500" />
+                  <span>输出: {priceInfo.out} 元 / K</span>
+               </div>
+             </div>
+          )}
+        </div>
+        <AnimatePresence>
+          {isSelected && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <Icon
+                icon="lucide:check-circle-2"
+                className={cn("h-5 w-5 shrink-0", c.icon)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.label>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* API Status Banner */}
@@ -147,68 +261,47 @@ export function SettingsPanel() {
         </div>
 
         {loading ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-14 animate-pulse rounded-xl bg-white/5"
-              />
-            ))}
-          </div>
+          <div className="h-12 w-full animate-pulse rounded-xl bg-white/5" />
         ) : error ? (
           <div className="rounded-xl border border-red-500/20 bg-red-950/20 p-4 text-sm text-red-400">
             <Icon icon="lucide:alert-circle" className="mb-1 h-4 w-4" />
             <p>{error}</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {models.map((model) => (
-              <motion.label
-                key={model.id}
-                whileHover={{ scale: 1.005 }}
-                className={cn(
-                  "flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-all",
-                  selectedTextModel === model.id
-                    ? "border-blue-500/40 bg-blue-950/30"
-                    : "border-white/5 bg-white/3 hover:border-white/10 hover:bg-white/5"
-                )}
-              >
-                <input
-                  type="radio"
-                  name="textModel"
-                  value={model.id}
-                  checked={selectedTextModel === model.id}
-                  onChange={() => setSelectedTextModel(model.id)}
-                  className="sr-only"
-                />
-                <div
-                  className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-                    selectedTextModel === model.id
-                      ? "border-blue-400 bg-blue-400"
-                      : "border-zinc-600"
-                  )}
-                >
-                  {selectedTextModel === model.id && (
-                    <div className="h-1.5 w-1.5 rounded-full bg-white" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-white">
-                    {model.display_name}
-                  </p>
-                  <p className="truncate text-xs text-zinc-500 font-mono">
-                    {model.id}
-                  </p>
-                </div>
-                {selectedTextModel === model.id && (
-                  <Icon
-                    icon="lucide:check-circle-2"
-                    className="h-4 w-4 shrink-0 text-blue-400"
-                  />
-                )}
-              </motion.label>
-            ))}
+          <div className="rounded-xl border border-white/5 bg-black/20 p-4">
+            <Tabs defaultValue="pro" className="w-full">
+              <TabsList className="bg-black/40 border border-white/10 w-full justify-start rounded-xl p-1 shrink-0 flex-wrap h-auto mb-4">
+                <TabsTrigger value="pro" className="rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors data-[state=active]:bg-blue-600/20 data-[state=active]:text-blue-400">
+                  <Icon icon="lucide:brain" className="mr-2 h-4 w-4" /> Doubao Pro
+                </TabsTrigger>
+                <TabsTrigger value="lite" className="rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors data-[state=active]:bg-teal-600/20 data-[state=active]:text-teal-400">
+                  <Icon icon="lucide:zap" className="mr-2 h-4 w-4" /> Doubao Lite
+                </TabsTrigger>
+                <TabsTrigger value="special" className="rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors data-[state=active]:bg-purple-600/20 data-[state=active]:text-purple-400">
+                  <Icon icon="lucide:blocks" className="mr-2 h-4 w-4" /> 扩展能力
+                </TabsTrigger>
+                <TabsTrigger value="other" className="rounded-lg text-zinc-400 hover:text-zinc-200 transition-colors data-[state=active]:bg-amber-600/20 data-[state=active]:text-amber-400">
+                  <Icon icon="lucide:globe" className="mr-2 h-4 w-4" /> 开源矩阵
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="pro" className="m-0 space-y-2">
+                {models.filter(m => m.id.includes("doubao-pro") && !m.id.match(/(embedding|browsing|character|functioncall|vision)/)).map(m => renderModelCard(m, "blue"))}
+              </TabsContent>
+              
+              <TabsContent value="lite" className="m-0 space-y-2">
+                {models.filter(m => m.id.includes("doubao-lite") && !m.id.match(/(embedding|browsing|character|functioncall|vision)/)).map(m => renderModelCard(m, "teal"))}
+              </TabsContent>
+              
+              <TabsContent value="special" className="m-0 space-y-2">
+                {models.filter(m => m.id.match(/(embedding|browsing|character|functioncall|vision)/)).map(m => renderModelCard(m, "purple"))}
+              </TabsContent>
+              
+              <TabsContent value="other" className="m-0 space-y-2">
+                {models.filter(m => !m.id.includes("doubao")).map(m => renderModelCard(m, "amber"))}
+              </TabsContent>
+            </Tabs>
+            <p className="text-xs text-zinc-500 mt-4 flex items-center gap-1.5"><Icon icon="lucide:info" className="h-3.5 w-3.5"/> 推荐优先使用 Pro 结尾的模型保障多阶智能体的推理智商分布，处理并发小任务时推荐使用 Lite 降低成本。</p>
           </div>
         )}
       </section>

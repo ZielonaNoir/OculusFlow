@@ -139,20 +139,20 @@ export default function ImageSlicer() {
 
   return (
     <div 
-        className={`min-h-screen w-full flex flex-col items-center justify-center transition-colors duration-500 ${isDragging ? "bg-zinc-900" : "bg-zinc-950"}`}
+        className={`min-h-screen w-full flex flex-col transition-colors duration-500 ${isDragging ? "bg-zinc-900" : "bg-zinc-950"}`}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
     >
         {/* Header / Nav */}
-        <header className="absolute top-0 w-full p-5 flex justify-between items-center z-30 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
+        <header className="sticky top-0 w-full p-5 flex justify-between items-center z-30 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
             <h1 className="text-sm font-bold tracking-widest uppercase text-white/80">PICTRANS <span className="opacity-40 font-normal">SLICER</span></h1>
             <div className="text-[10px] tracking-widest uppercase text-zinc-500 font-mono">
                 {imageSrc ? "Editor Active" : "Waiting for Input"}
             </div>
         </header>
 
-      <main className="flex flex-col items-center justify-center w-full max-w-5xl px-4 relative z-10 pt-16">
+      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-5xl mx-auto px-4 relative z-10 py-12">
         
         {!imageSrc ? (
             // Empty State
