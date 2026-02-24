@@ -166,6 +166,7 @@ export function SupplementInputForm({ onGenerate, onStop, isGenerating, onFourVi
               <div className="flex gap-3 flex-wrap justify-center w-full">
                 {previews.map((src, idx) => (
                   <div key={idx} className="relative group w-16 h-16 rounded-md overflow-hidden ring-1 ring-white/10 bg-black shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={src} alt="preview" className="w-full h-full object-cover" />
                     {!isGenerating && (
                       <button

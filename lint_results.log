@@ -1,0 +1,25 @@
+
+> pictrans@0.1.0 lint
+> eslint
+
+
+C:\Users\a4061\Desktop\RongYue\OculusFlow\app\agency\page.tsx
+  10:26  warning  'useSpring' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\a4061\Desktop\RongYue\OculusFlow\app\agency\retouch\page.tsx
+    4:18  warning  'AnimatePresence' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   10:10  warning  'Badge' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  192:26  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\a4061\Desktop\RongYue\OculusFlow\app\agency\set-generation\page.tsx
+  112:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\a4061\Desktop\RongYue\OculusFlow\app\agency\style-replication\page.tsx
+  108:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  130:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\a4061\Desktop\RongYue\OculusFlow\components\agency\WorkflowStepper.tsx
+  45:17  warning  'isPending' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+鉁?8 problems (0 errors, 8 warnings)
+

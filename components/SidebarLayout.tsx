@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "oculus_sidebar_collapsed";
 
+
+
 export function SidebarLayout({
   children,
 }: {
@@ -40,16 +42,19 @@ export function SidebarLayout({
   return (
     <div className="flex min-h-screen">
       <AppSidebar collapsed={collapsed} onToggle={onToggle} />
-      <main
-        className={cn(
-          "flex-1 transition-[padding] duration-300 ease-out min-w-0",
-          collapsed ? "pl-16" : "pl-64"
-        )}
-      >
-        <div className="h-full w-full animate-in fade-in zoom-in duration-500">
-          {children}
-        </div>
-      </main>
+      <div className="flex flex-col flex-1 min-w-0">
+
+        <main
+          className={cn(
+            "flex-1 transition-[padding] duration-300 ease-out min-w-0",
+            collapsed ? "pl-16" : "pl-64"
+          )}
+        >
+          <div className="h-full w-full animate-in fade-in zoom-in duration-500">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

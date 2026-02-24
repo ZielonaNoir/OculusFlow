@@ -6,15 +6,19 @@ import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@/components/UserProvider";
 
 const sidebarItems = [
   { title: "Overview", href: "/", icon: "lucide:layout-dashboard" },
+  { title: "风格复刻 (Style)", href: "/agency/style-replication", icon: "lucide:copy" },
+  { title: "智能组图 (Set Gen)", href: "/agency/set-generation", icon: "lucide:layers" },
+  { title: "图片精修 (Retouch)", href: "/agency/retouch", icon: "lucide:sparkles" },
   { title: "服装智能体", href: "/apparel-agent", icon: "lucide:bot" },
   { title: "保健品智能体", href: "/supplement-agent", icon: "lucide:flask-conical" },
   { title: "主播排班", href: "/host-scheduling", icon: "lucide:calendar-clock" },
   { title: "AI 盯盘", href: "/campaign-monitor", icon: "lucide:radar" },
-  { title: "Oculus Flow", href: "/oculus-flow", icon: "lucide:sparkles" },
-  { title: "模板库", href: "/template-library", icon: "lucide:library" },
+  { title: "Oculus Flow", href: "/oculus-flow", icon: "lucide:zap" },
+  { title: "Pricing", href: "/pricing", icon: "lucide:credit-card" },
   { title: "Settings", href: "/settings", icon: "lucide:settings-2" },
 ];
 
@@ -30,6 +34,13 @@ export function AppSidebar({
   onToggle: () => void;
 }) {
   const pathname = usePathname();
+  const { user, profile, credits } = useUser();
+
+  const displayName = profile?.full_name || "User";
+  const displayEmail = user?.email || profile?.email || "";
+  const initials = displayName.charAt(0).toUpperCase();
+  const isPro = credits?.is_pro ?? false;
+  const creditsCount = credits?.credit_balance ?? 0;
 
   return (
     <motion.aside
@@ -166,7 +177,7 @@ export function AppSidebar({
             )}
           >
             <div className="h-8 w-8 shrink-0 rounded-full bg-linear-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white">
-              JD
+              {initials}
             </div>
             <AnimatePresence mode="wait">
               {!collapsed && (
@@ -175,12 +186,26 @@ export function AppSidebar({
                   animate={{ opacity: 1, width: "auto" }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 35 }}
-                  className="flex min-w-0 flex-col overflow-hidden"
+                  className="flex min-w-0 flex-col overflow-hidden ml-1"
                 >
                   <span className="truncate text-xs font-medium text-white">
-                    Creative Director
+                    {displayName}
                   </span>
-                  <span className="text-[10px] text-zinc-500">Pro Plan</span>
+                  <span className="truncate text-[10px] text-zinc-400">
+                    {displayEmail}
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={cn(
+                      "text-[9px] px-1.5 py-0.5 rounded-sm font-medium tracking-wide",
+                      isPro ? "bg-indigo-500/20 text-indigo-300" : "bg-white/10 text-zinc-400"
+                    )}>
+                      {isPro ? "PRO" : "FREE"}
+                    </span>
+                    <span className="text-[10px] text-zinc-400 font-medium flex items-center">
+                      <Icon icon="lucide:coins" className="w-3 h-3 mr-1" />
+                      {creditsCount}
+                    </span>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

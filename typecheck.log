@@ -1,0 +1,2 @@
+$ tsc --noEmit
+app/components/NanoBananaChat.tsx(13,5): error TS2353: Object literal may only specify known properties, and 'api' does not exist in type 'UseChatOptions<UIMessage<unknown, UIDataTypes, UITools>>'.
