@@ -371,11 +371,13 @@ async function generateModuleVideo(
       prompt,
       moduleType,
       modelId,
+      waitForResult: true,
     }),
   });
 
   const data = (await response.json()) as {
     video_url?: string | null;
+    result?: { video_url?: string | null } | null;
     error?: string;
   };
 
@@ -383,11 +385,13 @@ async function generateModuleVideo(
     throw new Error(data.error || `HTTP ${response.status}`);
   }
 
-  if (!data.video_url) {
+  const resolvedUrl = data.video_url || data.result?.video_url || null;
+
+  if (!resolvedUrl) {
     throw new Error("未返回视频结果");
   }
 
-  return data.video_url;
+  return resolvedUrl;
 }
 
 function VariantCard({

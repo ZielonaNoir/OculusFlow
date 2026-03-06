@@ -29,7 +29,17 @@ function getPlaceholder(moduleType: string): string {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { prompt, moduleType, modelId, refImages, imageOptions } = body as {
+    const {
+      prompt,
+      moduleType,
+      modelId,
+      refImages,
+      imageOptions,
+      projectId,
+      generationKind,
+      metadataSnapshot,
+      selectedCell,
+    } = body as {
       prompt: string;
       moduleType: string;
       modelId?: string;
@@ -44,6 +54,10 @@ export async function POST(req: Request) {
         maxImages?: number;
         optimizePromptMode?: "standard" | "fast";
       };
+      projectId?: string;
+      generationKind?: string;
+      metadataSnapshot?: Record<string, unknown>;
+      selectedCell?: Record<string, unknown>;
     };
 
     // 优先使用环境变量中的推理接入点 ID；否则使用请求中的 modelId，并映射为方舟文档中的 Model ID。
@@ -152,12 +166,33 @@ export async function POST(req: Request) {
     const imageData = result?.data?.[0];
     if (imageData?.url) {
       console.log("[ImageGen] Returning success with url:", imageData.url);
+      await persistWorkflowTask({
+        projectId,
+        stepKey: generationKind || moduleType,
+        modelId: imageModel,
+        prompt,
+        imageOptions: imageOptions ?? {},
+        resultUrl: imageData.url,
+        metadataSnapshot,
+        selectedCell,
+      });
       return NextResponse.json({ image_url: imageData.url, status: "success" });
     }
     if (imageData?.b64_json) {
       console.log("[ImageGen] Returning success with b64_json");
+      const imageUrl = `data:image/png;base64,${imageData.b64_json}`;
+      await persistWorkflowTask({
+        projectId,
+        stepKey: generationKind || moduleType,
+        modelId: imageModel,
+        prompt,
+        imageOptions: imageOptions ?? {},
+        resultUrl: imageUrl,
+        metadataSnapshot,
+        selectedCell,
+      });
       return NextResponse.json({
-        image_url: `data:image/png;base64,${imageData.b64_json}`,
+        image_url: imageUrl,
         status: "success",
       });
     }
@@ -174,5 +209,44 @@ export async function POST(req: Request) {
       { error: "Failed to generate image" },
       { status: 500 }
     );
+  }
+}
+
+async function persistWorkflowTask(input: {
+  projectId?: string;
+  stepKey: string;
+  modelId: string;
+  prompt: string;
+  imageOptions: Record<string, unknown>;
+  resultUrl: string;
+  metadataSnapshot?: Record<string, unknown>;
+  selectedCell?: Record<string, unknown>;
+}) {
+  if (!input.projectId) return;
+  try {
+    const { createClient } = await import("@/utils/supabase/server");
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from("video_generation_tasks").insert({
+      project_id: input.projectId,
+      user_id: user.id,
+      task_type: "image",
+      step_key: input.stepKey,
+      status: "succeeded",
+      model_id: input.modelId,
+      prompt: input.prompt,
+      params_snapshot: input.imageOptions,
+      result_url: input.resultUrl,
+      result_payload: {
+        metadata_snapshot: input.metadataSnapshot ?? {},
+        selected_cell: input.selectedCell ?? {},
+      },
+    });
+  } catch (error) {
+    console.error("[ImageGen] persist task error:", error);
   }
 }

@@ -40,8 +40,25 @@ export async function POST(req: Request) {
       data_url?: string;
       type: "image" | "video";
       source?: string;
+      project_id?: string | null;
+      step_key?: string | null;
+      prompt?: string | null;
+      params_snapshot?: Record<string, unknown>;
+      metadata_snapshot?: Record<string, unknown>;
+      selected_cell?: Record<string, unknown>;
     };
-    const { url, data_url, type, source = "retouch" } = body;
+    const {
+      url,
+      data_url,
+      type,
+      source = "retouch",
+      project_id = null,
+      step_key = null,
+      prompt = null,
+      params_snapshot = {},
+      metadata_snapshot = {},
+      selected_cell = {},
+    } = body;
 
     if (!url && !data_url) {
       return NextResponse.json(
@@ -106,6 +123,12 @@ export async function POST(req: Request) {
         type,
         storage_path: storagePath,
         source: ["retouch", "oculus", "style", "setgen"].includes(source) ? source : "retouch",
+        project_id,
+        step_key,
+        prompt,
+        params_snapshot,
+        metadata_snapshot,
+        selected_cell,
       })
       .select("id")
       .single();
