@@ -16,7 +16,14 @@ function extractJSON<T>(text: string): T {
   const start = stripped.search(/[\[{]/);
   const end = Math.max(stripped.lastIndexOf("}"), stripped.lastIndexOf("]"));
   if (start === -1 || end === -1) throw new Error(`No JSON found in response: ${text.slice(0, 200)}`);
-  return JSON.parse(stripped.slice(start, end + 1)) as T;
+  let jsonStr = stripped.slice(start, end + 1);
+  // 将 LLM 可能输出的中文引号替换为标准 JSON 双引号，避免 JSON.parse 报错
+  jsonStr = jsonStr
+    .replace(/「/g, '"')
+    .replace(/」/g, '"')
+    .replace(/『/g, '"')
+    .replace(/』/g, '"');
+  return JSON.parse(jsonStr) as T;
 }
 
 export async function POST(req: Request) {

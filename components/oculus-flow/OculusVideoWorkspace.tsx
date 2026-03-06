@@ -699,7 +699,7 @@ export function OculusVideoWorkspace() {
             <h2 className="text-xl font-semibold text-white">AI Video Workspace</h2>
             <p className="text-xs text-zinc-400">剧本驱动的分镜到视频工作流</p>
           </div>
-          <Button size="sm" onClick={createProject} disabled={busyKey === "create-project"} className="bg-blue-600 text-white hover:bg-blue-500">
+          <Button size="sm" onClick={createProject} disabled={busyKey === "create-project"} className="bg-blue-600 text-white hover:bg-blue-500 active:scale-[0.98] transition-all duration-200">
             <Icon icon="lucide:plus" className="mr-1 h-4 w-4" />
             新建
           </Button>
@@ -707,9 +707,9 @@ export function OculusVideoWorkspace() {
 
         <div className="space-y-3">
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-zinc-500">项目列表</Label>
+            <Label className="text-xs uppercase tracking-wider text-zinc-400">项目列表</Label>
             <Select value={selectedProjectId ?? ""} onValueChange={(value) => void loadProject(value)}>
-              <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white">
+              <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white transition-colors duration-200 hover:border-white/20 hover:bg-zinc-800/80 focus:ring-2 focus:ring-white/25 data-[placeholder]:text-zinc-300 [&_[data-placeholder]]:text-zinc-300">
                 <SelectValue placeholder="选择一个项目" />
               </SelectTrigger>
               <SelectContent className="border-white/10 bg-zinc-950 text-white">
@@ -723,49 +723,49 @@ export function OculusVideoWorkspace() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-zinc-500">项目标题</Label>
-            <Input value={projectForm.title} onChange={(event) => setProjectForm((prev) => ({ ...prev, title: event.target.value }))} className="border-white/10 bg-zinc-900/80 text-white" />
+            <Label className="text-xs uppercase tracking-wider text-zinc-400">项目标题</Label>
+            <Input value={projectForm.title} onChange={(event) => setProjectForm((prev) => ({ ...prev, title: event.target.value }))} placeholder="输入项目名称" className="border-white/10 bg-zinc-900/80 text-white placeholder:text-zinc-400 transition-colors duration-200 hover:border-white/20 focus:border-white/30 focus:ring-2 focus:ring-white/20" />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-zinc-500">用户输入</Label>
-            <Textarea value={projectForm.prompt} onChange={(event) => setProjectForm((prev) => ({ ...prev, prompt: event.target.value }))} className="min-h-28 border-white/10 bg-zinc-900/80 text-white" />
+            <Label className="text-xs uppercase tracking-wider text-zinc-400">用户输入</Label>
+            <Textarea value={projectForm.prompt} onChange={(event) => setProjectForm((prev) => ({ ...prev, prompt: event.target.value }))} placeholder="描述你想要的视频创意…" className="min-h-28 border-white/10 bg-zinc-900/80 text-white placeholder:text-zinc-400 transition-colors duration-200 hover:border-white/20 focus:border-white/30 focus:ring-2 focus:ring-white/20" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-zinc-500">题材</Label>
-              <Input value={projectForm.genre} onChange={(event) => setProjectForm((prev) => ({ ...prev, genre: event.target.value }))} className="border-white/10 bg-zinc-900/80 text-white" />
+              <Label className="text-xs uppercase tracking-wider text-zinc-400">题材</Label>
+              <Input value={projectForm.genre} onChange={(event) => setProjectForm((prev) => ({ ...prev, genre: event.target.value }))} placeholder="如：商业短片" className="border-white/10 bg-zinc-900/80 text-white placeholder:text-zinc-400 transition-colors duration-200 hover:border-white/20 focus:border-white/30 focus:ring-2 focus:ring-white/20" />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-zinc-500">基调</Label>
-              <Input value={projectForm.tone} onChange={(event) => setProjectForm((prev) => ({ ...prev, tone: event.target.value }))} className="border-white/10 bg-zinc-900/80 text-white" />
+              <Label className="text-xs uppercase tracking-wider text-zinc-400">基调</Label>
+              <Input value={projectForm.tone} onChange={(event) => setProjectForm((prev) => ({ ...prev, tone: event.target.value }))} placeholder="如：电影级写实" className="border-white/10 bg-zinc-900/80 text-white placeholder:text-zinc-400 transition-colors duration-200 hover:border-white/20 focus:border-white/30 focus:ring-2 focus:ring-white/20" />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-zinc-500">时长</Label>
+              <Label className="text-xs uppercase tracking-wider text-zinc-400">时长</Label>
               <Select value={String(projectForm.duration_seconds)} onValueChange={(value) => setProjectForm((prev) => ({ ...prev, duration_seconds: Number(value) }))}>
-                <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white transition-colors duration-200 hover:border-white/20 hover:bg-zinc-800/80 focus:ring-2 focus:ring-white/25 data-[placeholder]:text-zinc-300 [&_[data-placeholder]]:text-zinc-300"><SelectValue /></SelectTrigger>
                 <SelectContent className="border-white/10 bg-zinc-950 text-white">
                   {[4, 5, 6, 8, 10, 12].map((value) => <SelectItem key={value} value={String(value)}>{value} 秒</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-zinc-500">画幅</Label>
+              <Label className="text-xs uppercase tracking-wider text-zinc-400">画幅</Label>
               <Select value={projectForm.aspect_ratio} onValueChange={(value) => setProjectForm((prev) => ({ ...prev, aspect_ratio: value }))}>
-                <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white transition-colors duration-200 hover:border-white/20 hover:bg-zinc-800/80 focus:ring-2 focus:ring-white/25 data-[placeholder]:text-zinc-300 [&_[data-placeholder]]:text-zinc-300"><SelectValue /></SelectTrigger>
                 <SelectContent className="border-white/10 bg-zinc-950 text-white">
                   {["16:9", "9:16", "1:1", "4:3", "21:9"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider text-zinc-500">宫格数</Label>
+              <Label className="text-xs uppercase tracking-wider text-zinc-400">宫格数</Label>
               <Select value={shotCount} onValueChange={setShotCount}>
-                <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="border-white/10 bg-zinc-900/80 text-white transition-colors duration-200 hover:border-white/20 hover:bg-zinc-800/80 focus:ring-2 focus:ring-white/25 data-[placeholder]:text-zinc-300 [&_[data-placeholder]]:text-zinc-300"><SelectValue /></SelectTrigger>
                 <SelectContent className="border-white/10 bg-zinc-950 text-white">
                   {[4, 6, 8, 9, 12].map((value) => <SelectItem key={value} value={String(value)}>{value} 宫格</SelectItem>)}
                 </SelectContent>
@@ -779,12 +779,12 @@ export function OculusVideoWorkspace() {
                 <p className="text-xs font-medium text-white">参考图</p>
                 <p className="text-[11px] text-zinc-500">最多 6 张，保存在项目中</p>
               </div>
-              <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={!selectedProjectId || referenceUploading} className="border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10">
+              <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={!selectedProjectId || referenceUploading} className="border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10 hover:border-white/20 active:scale-[0.98] transition-all duration-200">
                 <Icon icon="lucide:image-plus" className="mr-1 h-4 w-4" />
                 上传
               </Button>
             </div>
-            <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={(event) => void handleReferenceFiles(event.target.files)} />
+            <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" aria-label="上传参考图" onChange={(event) => void handleReferenceFiles(event.target.files)} />
             <div className="mt-3 grid grid-cols-3 gap-2">
               {(bundle?.project.reference_images ?? []).map((image, index) => (
                 <div key={`${image}-${index}`} className="overflow-hidden rounded-lg border border-white/10 bg-black/40">
@@ -800,7 +800,7 @@ export function OculusVideoWorkspace() {
             <p>视频模型：{typeof window !== "undefined" ? localStorage.getItem(VIDEO_MODEL_KEY) || DEFAULT_VIDEO_MODEL : DEFAULT_VIDEO_MODEL}</p>
           </div>
 
-          <Button onClick={saveProject} disabled={!selectedProjectId || busyKey === "save-project"} className="w-full bg-white text-black hover:bg-zinc-100">
+          <Button onClick={saveProject} disabled={!selectedProjectId || busyKey === "save-project"} className="w-full bg-white text-black hover:bg-zinc-100 active:scale-[0.98] transition-all duration-200">
             <Icon icon="lucide:save" className="mr-2 h-4 w-4" />
             保存项目信息
           </Button>
@@ -814,11 +814,11 @@ export function OculusVideoWorkspace() {
             <p className="text-xs text-zinc-400">生成、提取并手动维护结构化信息</p>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={generateScript} disabled={!selectedProjectId || busyKey === "script"} className="bg-blue-600 text-white hover:bg-blue-500">
+            <Button size="sm" onClick={generateScript} disabled={!selectedProjectId || busyKey === "script"} className="bg-blue-600 text-white hover:bg-blue-500 active:scale-[0.98] transition-all duration-200">
               <Icon icon="lucide:file-pen-line" className="mr-1 h-4 w-4" />
               出剧本
             </Button>
-            <Button size="sm" variant="outline" onClick={extractEntities} disabled={!selectedProjectId || !bundle?.project.script_text || busyKey === "extract"} className="border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10">
+            <Button size="sm" variant="outline" onClick={extractEntities} disabled={!selectedProjectId || !bundle?.project.script_text || busyKey === "extract"} className="border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10 hover:border-white/20 active:scale-[0.98] transition-all duration-200">
               <Icon icon="lucide:scan-search" className="mr-1 h-4 w-4" />
               提取元数据
             </Button>
@@ -826,7 +826,7 @@ export function OculusVideoWorkspace() {
         </div>
 
         <div className="mb-4 rounded-xl border border-white/10 bg-black/20 p-3">
-          <Label className="mb-2 block text-xs uppercase tracking-wider text-zinc-500">剧本</Label>
+          <Label className="mb-2 block text-xs uppercase tracking-wider text-zinc-400">剧本</Label>
           <ScrollArea className="h-40 rounded-lg border border-white/5 bg-zinc-950/60 p-3">
             <pre className="whitespace-pre-wrap text-sm leading-6 text-zinc-200">{bundle?.project.script_text || "还没有剧本，先点击“出剧本”。"}</pre>
           </ScrollArea>
@@ -843,14 +843,14 @@ export function OculusVideoWorkspace() {
                       <p className="text-sm font-medium text-white">{ENTITY_TYPE_LABELS[type]}</p>
                       <p className="text-[11px] text-zinc-500">{items.length} 条</p>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => void createEntity(type)} disabled={!selectedProjectId} className="border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10">
+                    <Button size="sm" variant="outline" onClick={() => void createEntity(type)} disabled={!selectedProjectId} className="border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10 hover:border-white/20 active:scale-[0.98] transition-all duration-200">
                       <Icon icon="lucide:plus" className="mr-1 h-4 w-4" />
                       新增
                     </Button>
                   </div>
 
                   <div className="space-y-3">
-                    {items.length === 0 && <div className="rounded-lg border border-dashed border-white/10 p-3 text-xs text-zinc-500">暂无 {ENTITY_TYPE_LABELS[type]}，可手动新增或通过剧本提取。</div>}
+                    {items.length === 0 && <div className="rounded-lg border border-dashed border-white/10 p-3 text-xs text-zinc-400">暂无 {ENTITY_TYPE_LABELS[type]}，可手动新增或通过剧本提取。</div>}
                     {items.map((entity, index) => (
                       <div key={entity.id} className="rounded-lg border border-white/10 bg-zinc-950/60 p-3">
                         <div className="mb-2 flex items-center justify-between gap-2">
@@ -864,8 +864,8 @@ export function OculusVideoWorkspace() {
                             <Button size="icon" variant="ghost" onClick={() => void deleteEntity(entity)} className="h-7 w-7 text-red-400 hover:bg-red-500/10 hover:text-red-300"><Icon icon="lucide:trash-2" className="h-4 w-4" /></Button>
                           </div>
                         </div>
-                        <Input value={entity.name} onChange={(event) => void updateEntity(entity, { name: event.target.value })} className="mb-2 border-white/10 bg-white/5 text-white" />
-                        <Textarea value={entity.description} onChange={(event) => void updateEntity(entity, { description: event.target.value })} className="min-h-20 border-white/10 bg-white/5 text-white" />
+                        <Input value={entity.name} onChange={(event) => void updateEntity(entity, { name: event.target.value })} placeholder="名称" className="mb-2 border-white/10 bg-white/5 text-white placeholder:text-zinc-400 transition-colors duration-200 hover:border-white/20 focus:ring-2 focus:ring-white/20" />
+                        <Textarea value={entity.description} onChange={(event) => void updateEntity(entity, { description: event.target.value })} placeholder="描述…" className="min-h-20 border-white/10 bg-white/5 text-white placeholder:text-zinc-400 transition-colors duration-200 hover:border-white/20 focus:ring-2 focus:ring-white/20" />
                       </div>
                     ))}
                   </div>
@@ -905,7 +905,7 @@ export function OculusVideoWorkspace() {
                         size="sm"
                         onClick={() => void generateImageStep(item.step)}
                         disabled={!selectedProjectId || isBusy || (item.step === "storyboard_hd" && !storyboard?.selected_index)}
-                        className="bg-white text-black hover:bg-zinc-100"
+                        className="bg-white text-black hover:bg-zinc-100 active:scale-[0.98] transition-all duration-200"
                       >
                         {isBusy ? <Icon icon="lucide:loader-2" className="mr-1 h-4 w-4 animate-spin" /> : <Icon icon="lucide:sparkles" className="mr-1 h-4 w-4" />}
                         生成
@@ -915,7 +915,7 @@ export function OculusVideoWorkspace() {
                         size="sm"
                         onClick={() => void generateFinalVideo()}
                         disabled={!selectedProjectId || isBusy || !storyboard?.hd_image_url}
-                        className="bg-cyan-600 text-white hover:bg-cyan-500"
+                        className="bg-cyan-600 text-white hover:bg-cyan-500 active:scale-[0.98] transition-all duration-200"
                       >
                         {isBusy ? <Icon icon="lucide:loader-2" className="mr-1 h-4 w-4 animate-spin" /> : <Icon icon="lucide:clapperboard" className="mr-1 h-4 w-4" />}
                         生成视频
@@ -934,13 +934,13 @@ export function OculusVideoWorkspace() {
                         <Switch checked={videoAudio} onCheckedChange={setVideoAudio} />
                       </label>
                       <Select value={videoResolution} onValueChange={setVideoResolution}>
-                        <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="border-white/10 bg-white/5 text-white transition-colors duration-200 hover:border-white/20 hover:bg-white/10 focus:ring-2 focus:ring-white/25 data-[placeholder]:text-zinc-300 [&_[data-placeholder]]:text-zinc-300"><SelectValue /></SelectTrigger>
                         <SelectContent className="border-white/10 bg-zinc-950 text-white">
                           {["480p", "720p", "1080p"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}
                         </SelectContent>
                       </Select>
                       <Select value={videoServiceTier} onValueChange={setVideoServiceTier}>
-                        <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="border-white/10 bg-white/5 text-white transition-colors duration-200 hover:border-white/20 hover:bg-white/10 focus:ring-2 focus:ring-white/25 data-[placeholder]:text-zinc-300 [&_[data-placeholder]]:text-zinc-300"><SelectValue /></SelectTrigger>
                         <SelectContent className="border-white/10 bg-zinc-950 text-white">
                           <SelectItem value="default">default</SelectItem>
                           <SelectItem value="flex">flex</SelectItem>
@@ -958,7 +958,7 @@ export function OculusVideoWorkspace() {
                           const cellIndex = index + 1;
                           const selected = storyboard.selected_index === cellIndex;
                           return (
-                            <Button key={cellIndex} size="sm" variant="outline" onClick={() => void selectStoryboardCell(cellIndex)} className={selected ? "border-blue-500 bg-blue-500/20 text-blue-200" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"}>
+                            <Button key={cellIndex} size="sm" variant="outline" onClick={() => void selectStoryboardCell(cellIndex)} className={selected ? "border-blue-500 bg-blue-500/20 text-blue-200" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:border-white/20 active:scale-[0.98] transition-all duration-200"}>
                               选第 {cellIndex} 格
                             </Button>
                           );

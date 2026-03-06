@@ -18,17 +18,17 @@ export default function OculusFlowPage() {
       </div>
 
       <Tabs defaultValue="video-workflow" className="space-y-4">
-        <TabsList className="border border-white/10 bg-black/30 p-1">
+        <TabsList className="border border-white/10 bg-black/30 p-1 text-zinc-200">
           <TabsTrigger
             value="video-workflow"
-            className="gap-2 rounded-md data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            className="gap-2 rounded-md text-zinc-200 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
           >
             <Icon icon="lucide:clapperboard" className="h-4 w-4" />
             AI Video Workflow
           </TabsTrigger>
           <TabsTrigger
             value="legacy"
-            className="gap-2 rounded-md data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
+            className="gap-2 rounded-md text-zinc-200 data-[state=active]:bg-zinc-100 data-[state=active]:text-black"
           >
             <Icon icon="lucide:layout-template" className="h-4 w-4" />
             Legacy Detail Page
