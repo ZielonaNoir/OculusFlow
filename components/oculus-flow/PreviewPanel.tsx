@@ -3,8 +3,10 @@
 import React, { useState, useCallback } from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUser } from "@/components/UserProvider";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +17,9 @@ import { cn } from "@/lib/utils";
 import { OculusVariant, OculusModule, ArkImageGenOptions } from "./types";
 
 import { PromptTemplateManager, PromptTemplate } from "./PromptTemplateManager";
+
+const VIDEO_MODEL_KEY = "oculus_video_model";
+const DEFAULT_VIDEO_MODEL = "doubao-seedance-1-5-pro";
 
 interface PreviewPanelProps {
   isGenerating: boolean;
@@ -44,12 +49,41 @@ export function PreviewPanel({
 
 
 
+  const { user } = useUser();
   const [activeTemplateTarget, setActiveTemplateTarget] = useState<{
     vIndex: number;
     mIndex: number;
     currentPrompt: string;
     moduleType: string;
   } | null>(null);
+
+  const saveToWorks = useCallback(
+    async (urlOrData: string, type: "image" | "video") => {
+      if (!user) {
+        toast.error("请先登录后再保存到我的作品");
+        return;
+      }
+      try {
+        const body = urlOrData.startsWith("data:")
+          ? { data_url: urlOrData, type, source: "oculus" }
+          : { url: urlOrData, type, source: "oculus" };
+        const res = await fetch("/api/assets/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = (await res.json()) as { error?: string };
+        if (!res.ok) {
+          toast.error(data.error || "保存失败");
+          return;
+        }
+        toast.success("已保存到我的作品");
+      } catch {
+        toast.error("保存请求失败");
+      }
+    },
+    [user]
+  );
 
   const handleApplyTemplate = (template: PromptTemplate) => {
     if (!activeTemplateTarget || !data || !onUpdateVariant) return;
@@ -160,14 +194,26 @@ export function PreviewPanel({
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-300">四视图参考（已生成）</span>
-              <button
-                type="button"
-                onClick={() => handleDownloadFourViewEmpty(fourViewImage, `four-view-${Date.now()}.png`)}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-              >
-                <Icon icon="lucide:download" className="h-3 w-3" />
-                下载
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadFourViewEmpty(fourViewImage, `four-view-${Date.now()}.png`)}
+                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <Icon icon="lucide:download" className="h-3 w-3" />
+                  下载
+                </button>
+                {user && (
+                  <button
+                    type="button"
+                    onClick={() => saveToWorks(fourViewImage, "image")}
+                    className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    <Icon icon="lucide:bookmark-plus" className="h-3 w-3" />
+                    保存到我的作品
+                  </button>
+                )}
+              </div>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -231,14 +277,26 @@ export function PreviewPanel({
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-blue-300">四视图参考</span>
-              <button
-                type="button"
-                onClick={() => handleDownloadFourView(fourViewImage, `four-view-${Date.now()}.png`)}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
-              >
-                <Icon icon="lucide:download" className="h-3 w-3" />
-                下载
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadFourView(fourViewImage, `four-view-${Date.now()}.png`)}
+                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <Icon icon="lucide:download" className="h-3 w-3" />
+                  下载
+                </button>
+                {user && (
+                  <button
+                    type="button"
+                    onClick={() => saveToWorks(fourViewImage, "image")}
+                    className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-zinc-300 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    <Icon icon="lucide:bookmark-plus" className="h-3 w-3" />
+                    保存到我的作品
+                  </button>
+                )}
+              </div>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -266,6 +324,7 @@ export function PreviewPanel({
               fourViewImage={fourViewImage}
               useFourViewRef={useFourViewRef}
               arkOptions={arkOptions}
+              onSaveToWorks={saveToWorks}
             />
           ))}
         </AnimatePresence>
@@ -296,6 +355,41 @@ export function PreviewPanel({
   );
 }
 
+async function generateModuleVideo(
+  prompt: string,
+  moduleType: string
+): Promise<string> {
+  const modelId =
+    typeof window !== "undefined"
+      ? (localStorage.getItem(VIDEO_MODEL_KEY) ?? DEFAULT_VIDEO_MODEL)
+      : DEFAULT_VIDEO_MODEL;
+
+  const response = await fetch("/api/oculus/video", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prompt,
+      moduleType,
+      modelId,
+    }),
+  });
+
+  const data = (await response.json()) as {
+    video_url?: string | null;
+    error?: string;
+  };
+
+  if (!response.ok) {
+    throw new Error(data.error || `HTTP ${response.status}`);
+  }
+
+  if (!data.video_url) {
+    throw new Error("未返回视频结果");
+  }
+
+  return data.video_url;
+}
+
 function VariantCard({
   variant,
   index,
@@ -304,6 +398,7 @@ function VariantCard({
   fourViewImage,
   useFourViewRef,
   arkOptions,
+  onSaveToWorks,
 }: {
   variant: OculusVariant;
   index: number;
@@ -312,6 +407,7 @@ function VariantCard({
   fourViewImage?: string | null;
   useFourViewRef?: boolean;
   arkOptions?: ArkImageGenOptions;
+  onSaveToWorks?: (urlOrData: string, type: "image" | "video") => void;
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
   const [imagesGenerating, setImagesGenerating] = useState(false);
@@ -498,6 +594,7 @@ function VariantCard({
                 module.module_type || "hero_section"
               )
             }
+            onSaveToWorks={onSaveToWorks}
           />
         ))}
       </div>
@@ -510,14 +607,25 @@ function ModuleRow({
   imageUrl,
   isGeneratingImage,
   onOpenTemplateManager,
+  onSaveToWorks,
 }: {
   module: OculusModule;
   imageUrl?: string | null;
   isGeneratingImage?: boolean;
   onOpenTemplateManager?: () => void;
+  onSaveToWorks?: (urlOrData: string, type: "image" | "video") => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [copiedField, setCopiedField] = useState<"copy" | "prompt" | null>(null);
+  const [videoState, setVideoState] = useState<{
+    loading: boolean;
+    url: string | null;
+    error: string | null;
+  }>({
+    loading: false,
+    url: null,
+    error: null,
+  });
 
   const isFrontendModule = ["specs", "footer"].includes(module.module_type || module.module_id || "");
 
@@ -527,6 +635,37 @@ function ModuleRow({
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 1500);
     } catch { /* silent */ }
+  };
+
+  const handleGenerateVideo = async () => {
+    const prompt = module.mj_prompt || module.image_prompt || "";
+    if (!prompt.trim()) {
+      setVideoState({
+        loading: false,
+        url: null,
+        error: "当前模块没有可用的视觉 Prompt",
+      });
+      return;
+    }
+
+    setVideoState({ loading: true, url: null, error: null });
+    try {
+      const videoUrl = await generateModuleVideo(
+        prompt,
+        module.module_type || module.module_id || "unknown"
+      );
+      setVideoState({
+        loading: false,
+        url: videoUrl,
+        error: null,
+      });
+    } catch (error) {
+      setVideoState({
+        loading: false,
+        url: null,
+        error: error instanceof Error ? error.message : "视频生成失败",
+      });
+    }
   };
 
   const moduleTypeIcons: Record<string, string> = {
@@ -646,6 +785,20 @@ function ModuleRow({
               {/* Visual Prompt */}
               <div className="relative group/prompt">
                 <div className="absolute right-2 top-2 flex items-center gap-1.5 opacity-0 group-hover/prompt:opacity-100 transition-opacity z-10">
+                  {!isFrontendModule && (
+                    <button
+                      type="button"
+                      onClick={handleGenerateVideo}
+                      className="flex items-center gap-1 rounded-md bg-cyan-600/90 px-2 py-1 text-[10px] font-medium text-white shadow-sm hover:bg-cyan-500 backdrop-blur-sm disabled:opacity-50"
+                      disabled={videoState.loading}
+                    >
+                      <Icon
+                        icon={videoState.loading ? "lucide:loader-2" : "lucide:clapperboard"}
+                        className={cn("h-3 w-3", videoState.loading && "animate-spin")}
+                      />
+                      {videoState.loading ? "生成中" : "视频"}
+                    </button>
+                  )}
                   <button
                     onClick={onOpenTemplateManager}
                     className="flex items-center gap-1 rounded-md bg-violet-600/90 px-2 py-1 text-[10px] font-medium text-white shadow-sm hover:bg-violet-500 backdrop-blur-sm"
@@ -677,6 +830,52 @@ function ModuleRow({
                   </p>
                 </div>
               </div>
+
+              {!isFrontendModule && videoState.url && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="overflow-hidden rounded-xl border border-cyan-500/20 bg-black/30 p-2"
+                >
+                  <video
+                    src={videoState.url}
+                    controls
+                    playsInline
+                    className="max-h-64 w-full rounded-lg object-cover"
+                  />
+                  <div className="mt-2 flex items-center justify-between text-[10px] text-cyan-300">
+                    <span>Seedance 视频预览</span>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={videoState.url}
+                        download={`${module.display_title || module.title || "module"}-video.mp4`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-cyan-300 hover:text-white"
+                      >
+                        <Icon icon="lucide:download" className="h-3 w-3" />
+                        下载
+                      </a>
+                      {onSaveToWorks && videoState.url && (
+                        <button
+                          type="button"
+                          onClick={() => onSaveToWorks(videoState.url!, "video")}
+                          className="flex items-center gap-1 text-cyan-300 hover:text-white"
+                        >
+                          <Icon icon="lucide:bookmark-plus" className="h-3 w-3" />
+                          保存到我的作品
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {!isFrontendModule && videoState.error && (
+                <div className="rounded-xl border border-red-500/20 bg-red-950/20 px-4 py-3 text-[11px] text-red-300">
+                  {videoState.error}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

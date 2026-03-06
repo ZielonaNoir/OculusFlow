@@ -2,9 +2,8 @@
 
 import React, { useState, useCallback } from "react";
 import { Icon } from "@iconify/react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FieldWithAIFill } from "@/components/ui/input-with-ai-fill";
 import {
   Select,
   SelectContent,
@@ -215,79 +214,161 @@ export function InputForm({ onFormChange, onGenerate, onStop, isGenerating, arkO
       {/* Product Name */}
       <div className="space-y-3 group">
         <Label className={cn(labelClasses, "group-focus-within:text-blue-400 transition-colors")}>产品名称</Label>
-        <div className="relative">
-          <Icon icon="lucide:package" className="absolute left-3 top-3 h-4 w-4 text-zinc-500 transition-colors group-focus-within:text-blue-400" />
-          <Input
-            value={formData.productName}
-            onChange={(e) => handleChange("productName", e.target.value)}
-            className={inputClasses}
-            placeholder="输入产品名称"
-          />
-        </div>
+        <FieldWithAIFill
+          value={formData.productName}
+          onChange={(v) => handleChange("productName", v)}
+          variant="input"
+          disabled={isGenerating}
+          prefix={<Icon icon="lucide:package" className="transition-colors group-focus-within:text-blue-400" />}
+          inputClassName={inputClasses}
+          placeholder="输入产品名称"
+          onFill={async () => {
+            const res = await fetch("/api/llm/fill", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fieldType: "product-name", context: { formData } }),
+            });
+            const data = (await res.json()) as { text?: string; error?: string };
+            if (!res.ok) {
+              toast.error(data.error || "生成失败");
+              return "";
+            }
+            return data.text ?? "";
+          }}
+        />
       </div>
 
       {/* Core Specs */}
       <div className="space-y-3 group">
         <Label className={cn(labelClasses, "group-focus-within:text-blue-400 transition-colors")}>核心规格</Label>
-        <Textarea
+        <FieldWithAIFill
           value={formData.coreSpecs}
-          onChange={(e) => handleChange("coreSpecs", e.target.value)}
-          className={cn(inputClasses, "min-h-[100px] pl-3")}
+          onChange={(v) => handleChange("coreSpecs", v)}
+          variant="textarea"
+          disabled={isGenerating}
+          inputClassName={cn(inputClasses, "min-h-[100px] pl-3")}
           placeholder="输入核心规格参数"
+          onFill={async () => {
+            const res = await fetch("/api/llm/fill", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fieldType: "core-specs", context: { formData } }),
+            });
+            const data = (await res.json()) as { text?: string; error?: string };
+            if (!res.ok) {
+              toast.error(data.error || "生成失败");
+              return "";
+            }
+            return data.text ?? "";
+          }}
         />
       </div>
 
       {/* Target Audience */}
       <div className="space-y-3 group">
         <Label className={cn(labelClasses, "group-focus-within:text-blue-400 transition-colors")}>目标人群</Label>
-        <div className="relative">
-          <Icon icon="lucide:users" className="absolute left-3 top-3 h-4 w-4 text-zinc-500 transition-colors group-focus-within:text-blue-400" />
-          <Input
-            value={formData.targetAudience}
-            onChange={(e) => handleChange("targetAudience", e.target.value)}
-            className={inputClasses}
-            placeholder="描述目标人群画像"
-          />
-        </div>
+        <FieldWithAIFill
+          value={formData.targetAudience}
+          onChange={(v) => handleChange("targetAudience", v)}
+          variant="input"
+          disabled={isGenerating}
+          prefix={<Icon icon="lucide:users" className="transition-colors group-focus-within:text-blue-400" />}
+          inputClassName={inputClasses}
+          placeholder="描述目标人群画像"
+          onFill={async () => {
+            const res = await fetch("/api/llm/fill", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fieldType: "target-audience", context: { formData } }),
+            });
+            const data = (await res.json()) as { text?: string; error?: string };
+            if (!res.ok) {
+              toast.error(data.error || "生成失败");
+              return "";
+            }
+            return data.text ?? "";
+          }}
+        />
       </div>
 
       {/* Pain Points */}
       <div className="space-y-3 group">
         <Label className={cn(labelClasses, "group-focus-within:text-blue-400 transition-colors")}>用户痛点</Label>
-        <Textarea
+        <FieldWithAIFill
           value={formData.painPoints}
-          onChange={(e) => handleChange("painPoints", e.target.value)}
-          className={cn(inputClasses, "min-h-[100px] pl-3")}
+          onChange={(v) => handleChange("painPoints", v)}
+          variant="textarea"
+          disabled={isGenerating}
+          inputClassName={cn(inputClasses, "min-h-[100px] pl-3")}
           placeholder="描述用户痛点场景"
+          onFill={async () => {
+            const res = await fetch("/api/llm/fill", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fieldType: "pain-points", context: { formData } }),
+            });
+            const data = (await res.json()) as { text?: string; error?: string };
+            if (!res.ok) {
+              toast.error(data.error || "生成失败");
+              return "";
+            }
+            return data.text ?? "";
+          }}
         />
       </div>
 
       {/* Trust Endorsement */}
       <div className="space-y-3 group">
         <Label className={cn(labelClasses, "group-focus-within:text-blue-400 transition-colors")}>信任背书</Label>
-        <div className="relative">
-          <Icon icon="lucide:award" className="absolute left-3 top-3 h-4 w-4 text-zinc-500 transition-colors group-focus-within:text-blue-400" />
-          <Input
-            value={formData.trustEndorsement}
-            onChange={(e) => handleChange("trustEndorsement", e.target.value)}
-            className={inputClasses}
-            placeholder="榜单排名、销量数据"
-          />
-        </div>
+        <FieldWithAIFill
+          value={formData.trustEndorsement}
+          onChange={(v) => handleChange("trustEndorsement", v)}
+          variant="input"
+          disabled={isGenerating}
+          prefix={<Icon icon="lucide:award" className="transition-colors group-focus-within:text-blue-400" />}
+          inputClassName={inputClasses}
+          placeholder="榜单排名、销量数据"
+          onFill={async () => {
+            const res = await fetch("/api/llm/fill", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fieldType: "trust-endorsement", context: { formData } }),
+            });
+            const data = (await res.json()) as { text?: string; error?: string };
+            if (!res.ok) {
+              toast.error(data.error || "生成失败");
+              return "";
+            }
+            return data.text ?? "";
+          }}
+        />
       </div>
 
       {/* Selling Mode */}
       <div className="space-y-3 group">
         <Label className={cn(labelClasses, "group-focus-within:text-blue-400 transition-colors")}>促销模式 (选填)</Label>
-        <div className="relative">
-          <Icon icon="lucide:tag" className="absolute left-3 top-3 h-4 w-4 text-zinc-500 transition-colors group-focus-within:text-blue-400" />
-          <Input
-            value={formData.sellingMode || ""}
-            onChange={(e) => handleChange("sellingMode", e.target.value)}
-            className={inputClasses}
-            placeholder="满减、赠品、物流时效"
-          />
-        </div>
+        <FieldWithAIFill
+          value={formData.sellingMode || ""}
+          onChange={(v) => handleChange("sellingMode", v)}
+          variant="input"
+          disabled={isGenerating}
+          prefix={<Icon icon="lucide:tag" className="transition-colors group-focus-within:text-blue-400" />}
+          inputClassName={inputClasses}
+          placeholder="满减、赠品、物流时效"
+          onFill={async () => {
+            const res = await fetch("/api/llm/fill", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fieldType: "selling-mode", context: { formData } }),
+            });
+            const data = (await res.json()) as { text?: string; error?: string };
+            if (!res.ok) {
+              toast.error(data.error || "生成失败");
+              return "";
+            }
+            return data.text ?? "";
+          }}
+        />
       </div>
 
       {/* Visual Style */}

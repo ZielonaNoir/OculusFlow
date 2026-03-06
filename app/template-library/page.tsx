@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FieldWithAIFill } from "@/components/ui/input-with-ai-fill";
 import {
   Select,
   SelectContent,
@@ -275,15 +276,27 @@ function SchemeEditor({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="方案名称"
-          className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/50"
-        />
-      </div>
+      <FieldWithAIFill
+        value={name}
+        onChange={setName}
+        variant="input"
+        placeholder="方案名称"
+        className="[&_button]:rounded-lg [&_button]:border-white/20 [&_button]:text-white [&_button]:hover:bg-white/10"
+        inputClassName="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/50"
+        onFill={async () => {
+          const res = await fetch("/api/llm/fill", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fieldType: "plan-name",
+              context: { formData: { moduleTemplates } },
+            }),
+          });
+          const data = (await res.json()) as { text?: string; error?: string };
+          if (!res.ok) return "";
+          return data.text ?? "";
+        }}
+      />
       <div className="space-y-2">
         <p className="text-xs text-zinc-500">为每个模块选择使用的 Prompt 模板（可选）</p>
         {moduleTypes.map((m) => {

@@ -1,0 +1,15 @@
+---
+description: 所有需要加载的组件必须优先使用 shadcn Skeleton + 渐进展示，严格执行
+alwaysApply: false
+globs: "**/agency/**/*.tsx"
+---
+
+# Skeleton + 渐进展示（严格执行）
+
+凡涉及**需要加载的组件**（异步图片列表、列表流、单图/单资源等），必须符合 **async-image-list-skeleton** skill：
+
+- **技能**：阅读并遵循 `.cursor/skills/async-image-list-skeleton/SKILL.md`
+- **占位**：一律使用 shadcn `Skeleton`（`@/components/ui/skeleton`），不得用纯空白或仅 loading 图标
+- **渐进展示**：能按条/按项返回的数据，预分配槽位并逐条更新，做到「拿到一条显示一条」
+
+参考实现：智能组图 [app/agency/set-generation/page.tsx](app/agency/set-generation/page.tsx) 结果区；图片精修结果区建议同构。

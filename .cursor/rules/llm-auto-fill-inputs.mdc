@@ -1,0 +1,16 @@
+---
+description: 所有业务/创作类输入框必须有 AI 自动填充按钮，遵循 llm-auto-fill-inputs skill
+alwaysApply: false
+globs: "app/**/*.tsx,components/**/*.tsx"
+---
+
+# AI 自动填充（业务/创作输入框）
+
+凡新增或修改**业务/创作类** Input、Textarea（非登录、非聊天消息框），必须提供「AI 自动填充」能力：
+
+- **技能**：阅读并遵循 `.cursor/skills/llm-auto-fill-inputs/SKILL.md`
+- **组件**：优先使用 `FieldWithAIFill`（`@/components/ui/input-with-ai-fill`）
+- **接口**：有图用 `POST /api/setgen/describe-image` 或 `POST /api/llm/fill`（`fieldType: "describe-image"`）；无图用 `POST /api/llm/fill` 并传 `fieldType` + 可选 `context.formData`
+- **排除**：登录页邮箱/密码、NanoBananaChat 消息输入框
+
+参考：set-generation 需求描述、retouch 描述框、template-library 方案名称、SupplementInputForm、ApparelInputForm、InputForm、PromptTemplateManager。

@@ -14,13 +14,13 @@ const sidebarItems = [
   { title: "风格复刻 (Style)", href: "/agency/style-replication", icon: "lucide:copy" },
   { title: "智能组图 (Set Gen)", href: "/agency/set-generation", icon: "lucide:layers" },
   { title: "图片精修 (Retouch)", href: "/agency/retouch", icon: "lucide:sparkles" },
+  { title: "我的作品", href: "/agency/my-works", icon: "lucide:folder-heart" },
   { title: "服装智能体", href: "/apparel-agent", icon: "lucide:bot" },
   { title: "保健品智能体", href: "/supplement-agent", icon: "lucide:flask-conical" },
   { title: "主播排班", href: "/host-scheduling", icon: "lucide:calendar-clock" },
   { title: "AI 盯盘", href: "/campaign-monitor", icon: "lucide:radar" },
   { title: "Oculus Flow", href: "/oculus-flow", icon: "lucide:zap" },
   { title: "Pricing", href: "/pricing", icon: "lucide:credit-card" },
-  { title: "Settings", href: "/settings", icon: "lucide:settings-2" },
 ];
 
 const SIDEBAR_WIDTH_EXPANDED = 256; // w-64
@@ -35,8 +35,6 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { user, profile, credits } = useUser();
-  const [showUserPopover, setShowUserPopover] = React.useState(false);
-  const userCardRef = React.useRef<HTMLDivElement>(null);
 
   const displayName = profile?.full_name || "User";
   const displayEmail = user?.email || profile?.email || "";
@@ -193,12 +191,10 @@ export function AppSidebar({
               </AnimatePresence>
             </motion.button>
 
-            {/* User Account Card */}
-            <div
-              ref={userCardRef}
-              onClick={() => setShowUserPopover(!showUserPopover)}
-              className={cn(
-                "group flex w-full items-center rounded-2xl py-2 px-3 transition-all duration-300 cursor-pointer overflow-hidden relative",
+            {/* User Account Card - Popover trigger */}
+            <UserAccountPopover
+              triggerClassName={cn(
+                "group flex w-full items-center rounded-2xl py-2 px-3 transition-all duration-300 cursor-pointer overflow-hidden",
                 "bg-transparent hover:bg-zinc-800/60",
                 collapsed ? "justify-center px-0" : "gap-3"
               )}
@@ -206,7 +202,6 @@ export function AppSidebar({
               <div className="h-9 w-9 shrink-0 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-indigo-500/10 transition-transform active:scale-95">
                 {initials}
               </div>
-              
               <AnimatePresence mode="wait">
                 {!collapsed && (
                   <motion.div
@@ -220,19 +215,21 @@ export function AppSidebar({
                       <span className="truncate text-sm font-semibold text-zinc-100 group-hover:text-white transition-colors">
                         {displayName}
                       </span>
-                      <Icon 
-                        icon="lucide:sliders-horizontal" 
-                        className="h-3.5 w-3.5 shrink-0 text-zinc-500 opacity-0 group-hover:opacity-100 transition-all duration-300" 
+                      <Icon
+                        icon="lucide:sliders-horizontal"
+                        className="h-3.5 w-3.5 shrink-0 text-zinc-500 opacity-0 group-hover:opacity-100 transition-all duration-300"
                       />
                     </div>
                     <span className="truncate text-[11px] text-zinc-500 group-hover:text-zinc-400 transition-colors">
                       {displayEmail}
                     </span>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={cn(
-                        "text-[9px] px-1.5 py-0.5 rounded-sm font-bold tracking-wide",
-                        isPro ? "bg-indigo-500/20 text-indigo-400" : "bg-white/5 text-zinc-500"
-                      )}>
+                      <span
+                        className={cn(
+                          "text-[9px] px-1.5 py-0.5 rounded-sm font-bold tracking-wide",
+                          isPro ? "bg-indigo-500/20 text-indigo-400" : "bg-white/5 text-zinc-500"
+                        )}
+                      >
                         {isPro ? "PRO" : "FREE"}
                       </span>
                       <span className="text-[10px] text-zinc-400 font-medium flex items-center">
@@ -243,15 +240,7 @@ export function AppSidebar({
                   </motion.div>
                 )}
               </AnimatePresence>
-              <AnimatePresence>
-                {showUserPopover && (
-                  <UserAccountPopover 
-                    isOpen={showUserPopover} 
-                    onClose={() => setShowUserPopover(false)} 
-                  />
-                )}
-              </AnimatePresence>
-            </div>
+            </UserAccountPopover>
           </div>
         </div>
       </motion.aside>

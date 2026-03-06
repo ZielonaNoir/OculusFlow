@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FieldWithAIFill } from "@/components/ui/input-with-ai-fill";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 import MagneticButton from "@/app/components/MagneticButton";
 
 interface ApparelInputFormProps {
@@ -23,7 +24,7 @@ export function ApparelInputForm({ onGenerate, onStop, isGenerating }: ApparelIn
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
       setImages(prev => [...prev, ...newFiles]);
-      
+
       const newPreviews = newFiles.map(file => URL.createObjectURL(file));
       setPreviews(prev => [...prev, ...newPreviews]);
     }
@@ -50,27 +51,59 @@ export function ApparelInputForm({ onGenerate, onStop, isGenerating }: ApparelIn
       <div className="space-y-4">
         {/* Category */}
         <div className="space-y-2">
-          <Label htmlFor="category" className="text-zinc-300">产品品类 (Category)</Label>
-          <Input 
-            id="category"
+          <Label className="text-zinc-300">产品品类 (Category)</Label>
+          <FieldWithAIFill
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={setCategory}
+            variant="input"
             disabled={isGenerating}
             placeholder="例如：羽绒服、冲锋衣"
-            className="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-indigo-500"
+            inputClassName="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-indigo-500"
+            onFill={async () => {
+              const res = await fetch("/api/llm/fill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fieldType: "apparel-category",
+                  context: { formData: { targetAudience } },
+                }),
+              });
+              const data = (await res.json()) as { text?: string; error?: string };
+              if (!res.ok) {
+                toast.error(data.error || "生成失败");
+                return "";
+              }
+              return data.text ?? "";
+            }}
           />
         </div>
 
         {/* Target Audience */}
         <div className="space-y-2">
-          <Label htmlFor="targetAudience" className="text-zinc-300">目标客群 (Audience Tags)</Label>
-          <Input 
-            id="targetAudience"
+          <Label className="text-zinc-300">目标客群 (Audience Tags)</Label>
+          <FieldWithAIFill
             value={targetAudience}
-            onChange={(e) => setTargetAudience(e.target.value)}
+            onChange={setTargetAudience}
+            variant="input"
             disabled={isGenerating}
             placeholder="例如：儿童；中大童；110-175"
-            className="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-indigo-500 font-mono text-sm"
+            inputClassName="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-indigo-500 font-mono text-sm"
+            onFill={async () => {
+              const res = await fetch("/api/llm/fill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fieldType: "apparel-audience",
+                  context: { formData: { category } },
+                }),
+              });
+              const data = (await res.json()) as { text?: string; error?: string };
+              if (!res.ok) {
+                toast.error(data.error || "生成失败");
+                return "";
+              }
+              return data.text ?? "";
+            }}
           />
           <p className="text-[10px] text-zinc-500 mt-1">无需输入详细尺码或参数，AI 自动进行人群降维洞察。</p>
         </div>
@@ -78,26 +111,27 @@ export function ApparelInputForm({ onGenerate, onStop, isGenerating }: ApparelIn
         {/* Visual Input (Dropzone simplified) */}
         <div className="space-y-2 mt-4">
           <div className="flex justify-between items-center">
-             <Label className="text-zinc-300">视觉资产 (Vision Input)</Label>
-             <span className="text-[10px] text-zinc-500">{images.length} / 5</span>
+            <Label className="text-zinc-300">视觉资产 (Vision Input)</Label>
+            <span className="text-[10px] text-zinc-500">{images.length} / 5</span>
           </div>
-          
-          <div 
+
+          <div
             onClick={() => !isGenerating && fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors ${isGenerating ? 'border-zinc-800 opacity-50 cursor-not-allowed' : 'border-zinc-700 hover:border-indigo-500 hover:bg-indigo-500/5'}`}
           >
-             <Icon icon="lucide:image-plus" className="h-8 w-8 text-zinc-400 mb-2" />
-             <span className="text-sm font-medium text-zinc-300">添加平铺图/模特图</span>
-             <span className="text-xs text-zinc-500 mt-1">AI 视觉解析师将自动识别设计卖点</span>
-             <input 
-               ref={fileInputRef}
-               type="file"
-               multiple
-               accept="image/*"
-               className="hidden"
-               onChange={handleImageUpload}
-               disabled={isGenerating}
-             />
+            <Icon icon="lucide:image-plus" className="h-8 w-8 text-zinc-400 mb-2" />
+            <span className="text-sm font-medium text-zinc-300">添加平铺图/模特图</span>
+            <span className="text-xs text-zinc-500 mt-1">AI 视觉解析师将自动识别设计卖点</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+              disabled={isGenerating}
+              aria-label="添加平铺图或模特图"
+            />
           </div>
 
           {/* Image Previews */}
@@ -110,10 +144,11 @@ export function ApparelInputForm({ onGenerate, onStop, isGenerating }: ApparelIn
                   {!isGenerating && (
                     <button
                       type="button"
+                      title="删除"
                       onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                       className="absolute top-1 right-1 bg-black/60 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <Icon icon="lucide:x" className="h-3 w-3 text-white" />
+                      <Icon icon="lucide:x" className="h-3 w-3 text-white" aria-hidden />
                     </button>
                   )}
                 </div>

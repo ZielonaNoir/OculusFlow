@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FieldWithAIFill } from "@/components/ui/input-with-ai-fill";
 import { Icon } from "@iconify/react";
+import { toast } from "sonner";
 import MagneticButton from "@/app/components/MagneticButton";
 
 interface SupplementInputFormProps {
@@ -86,57 +86,118 @@ export function SupplementInputForm({ onGenerate, onStop, isGenerating, onFourVi
       <div className="space-y-4">
         {/* Product Name */}
         <div className="space-y-2">
-          <Label htmlFor="productName" className="text-zinc-300">产品名称</Label>
-          <Input
-            id="productName"
+          <Label className="text-zinc-300">产品名称</Label>
+          <FieldWithAIFill
             value={productName}
-            onChange={(e) => setProductName(e.target.value)}
+            onChange={setProductName}
+            variant="input"
             disabled={isGenerating}
             placeholder="例如：进口鱼油软胶囊、益生菌冻干粉"
-            className="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500"
+            inputClassName="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500"
+            onFill={async () => {
+              const res = await fetch("/api/llm/fill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fieldType: "supplement-product",
+                  context: { formData: { coreIngredients, targetAudience, healthGoals } },
+                }),
+              });
+              const data = (await res.json()) as { text?: string; error?: string };
+              if (!res.ok) {
+                toast.error(data.error || "生成失败");
+                return "";
+              }
+              return data.text ?? "";
+            }}
           />
         </div>
 
         {/* Core Ingredients */}
         <div className="space-y-2">
-          <Label htmlFor="coreIngredients" className="text-zinc-300">核心成分 / 规格参数</Label>
-          <Textarea
-            id="coreIngredients"
+          <Label className="text-zinc-300">核心成分 / 规格参数</Label>
+          <FieldWithAIFill
             value={coreIngredients}
-            onChange={(e) => setCoreIngredients(e.target.value)}
+            onChange={setCoreIngredients}
+            variant="textarea"
             disabled={isGenerating}
-            rows={10}
             placeholder="例如：NMN 500mg，NAD+ 前体，β-烟酰胺单核苷酸"
-            className="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500 font-mono text-sm resize-none"
+            inputClassName="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500 font-mono text-sm resize-none min-h-[200px]"
+            onFill={async () => {
+              const res = await fetch("/api/llm/fill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fieldType: "supplement-ingredients",
+                  context: { formData: { productName, targetAudience, healthGoals } },
+                }),
+              });
+              const data = (await res.json()) as { text?: string; error?: string };
+              if (!res.ok) {
+                toast.error(data.error || "生成失败");
+                return "";
+              }
+              return data.text ?? "";
+            }}
           />
           <p className="text-[10px] text-zinc-500">填入品牌方语言即可，AI 将负责&ldquo;降维翻译&rdquo;为消费者人话。</p>
         </div>
 
         {/* Target Audience */}
         <div className="space-y-2">
-          <Label htmlFor="targetAudience" className="text-zinc-300">目标客群 (标签化输入)</Label>
-          <Textarea
-            id="targetAudience"
+          <Label className="text-zinc-300">目标客群 (标签化输入)</Label>
+          <FieldWithAIFill
             value={targetAudience}
-            onChange={(e) => setTargetAudience(e.target.value)}
+            onChange={setTargetAudience}
+            variant="textarea"
             disabled={isGenerating}
-            rows={2}
             placeholder="例如：中老年人；40-65岁；注重心血管"
-            className="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500 font-mono text-sm resize-none"
+            inputClassName="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500 font-mono text-sm resize-none min-h-[60px]"
+            onFill={async () => {
+              const res = await fetch("/api/llm/fill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fieldType: "supplement-audience",
+                  context: { formData: { productName, coreIngredients, healthGoals } },
+                }),
+              });
+              const data = (await res.json()) as { text?: string; error?: string };
+              if (!res.ok) {
+                toast.error(data.error || "生成失败");
+                return "";
+              }
+              return data.text ?? "";
+            }}
           />
         </div>
 
         {/* Health Goals */}
         <div className="space-y-2">
-          <Label htmlFor="healthGoals" className="text-zinc-300">健康功效诉求</Label>
-          <Textarea
-            id="healthGoals"
+          <Label className="text-zinc-300">健康功效诉求</Label>
+          <FieldWithAIFill
             value={healthGoals}
-            onChange={(e) => setHealthGoals(e.target.value)}
+            onChange={setHealthGoals}
+            variant="textarea"
             disabled={isGenerating}
-            rows={4}
             placeholder="例如：护心血管、降甘油三酯、促进睡眠"
-            className="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500 text-sm font-mono resize-none"
+            inputClassName="bg-black/30 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-teal-500 text-sm font-mono resize-none min-h-[80px]"
+            onFill={async () => {
+              const res = await fetch("/api/llm/fill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  fieldType: "supplement-scenario",
+                  context: { formData: { productName, coreIngredients, targetAudience } },
+                }),
+              });
+              const data = (await res.json()) as { text?: string; error?: string };
+              if (!res.ok) {
+                toast.error(data.error || "生成失败");
+                return "";
+              }
+              return data.text ?? "";
+            }}
           />
         </div>
 
@@ -171,10 +232,11 @@ export function SupplementInputForm({ onGenerate, onStop, isGenerating, onFourVi
                     {!isGenerating && (
                       <button
                         type="button"
+                        title="删除"
                         onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                         className="absolute top-1 right-1 bg-black/60 backdrop-blur-md rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80"
                       >
-                        <Icon icon="lucide:x" className="h-3 w-3 text-white" />
+                        <Icon icon="lucide:x" className="h-3 w-3 text-white" aria-hidden />
                       </button>
                     )}
                   </div>
@@ -194,6 +256,7 @@ export function SupplementInputForm({ onGenerate, onStop, isGenerating, onFourVi
               className="hidden"
               onChange={handleImageUpload}
               disabled={isGenerating}
+              aria-label="上传产品图或素材图"
             />
           </div>
         </div>

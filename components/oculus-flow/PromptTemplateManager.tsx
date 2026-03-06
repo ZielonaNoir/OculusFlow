@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FieldWithAIFill } from "@/components/ui/input-with-ai-fill";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -273,12 +275,34 @@ export function PromptTemplateManager({
             <div className="rounded-xl border border-violet-500/20 bg-violet-950/20 p-4 space-y-3">
               <p className="text-xs font-medium text-violet-300">新建自定义模板</p>
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
+                <FieldWithAIFill
+                  value={newTemplate.name ?? ""}
+                  onChange={(v) => setNewTemplate((p) => ({ ...p, name: v }))}
+                  variant="input"
                   placeholder="模板名称"
-                  value={newTemplate.name}
-                  onChange={(e) => setNewTemplate((p) => ({ ...p, name: e.target.value }))}
-                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/50"
+                  className="[&_button]:rounded-lg [&_button]:border-white/20 [&_button]:text-white [&_button]:hover:bg-white/10 [&_button]:text-xs"
+                  inputClassName="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/50"
+                  onFill={async () => {
+                    const res = await fetch("/api/llm/fill", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        fieldType: "template-name",
+                        context: {
+                          formData: {
+                            category: newTemplate.category,
+                            moduleType: newTemplate.moduleType,
+                          },
+                        },
+                      }),
+                    });
+                    const data = (await res.json()) as { text?: string; error?: string };
+                    if (!res.ok) {
+                      toast.error(data.error || "生成失败");
+                      return "";
+                    }
+                    return data.text ?? "";
+                  }}
                 />
                 <Select
                   value={newTemplate.category ?? "保健品"}
@@ -311,12 +335,35 @@ export function PromptTemplateManager({
                   ))}
                 </SelectContent>
               </Select>
-              <textarea
+              <FieldWithAIFill
+                value={newTemplate.prompt ?? ""}
+                onChange={(v) => setNewTemplate((p) => ({ ...p, prompt: v }))}
+                variant="textarea"
                 placeholder="输入中文 Prompt，面向即梦AI，描述构图/光线/色调/主体/风格..."
-                value={newTemplate.prompt}
-                onChange={(e) => setNewTemplate((p) => ({ ...p, prompt: e.target.value }))}
-                rows={3}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/50 resize-none"
+                className="[&_button]:rounded-lg [&_button]:border-white/20 [&_button]:text-white [&_button]:hover:bg-white/10 [&_button]:text-xs"
+                inputClassName="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/50 resize-none min-h-[80px]"
+                onFill={async () => {
+                  const res = await fetch("/api/llm/fill", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      fieldType: "template-prompt",
+                      context: {
+                        formData: {
+                          name: newTemplate.name,
+                          category: newTemplate.category,
+                          moduleType: newTemplate.moduleType,
+                        },
+                      },
+                    }),
+                  });
+                  const data = (await res.json()) as { text?: string; error?: string };
+                  if (!res.ok) {
+                    toast.error(data.error || "生成失败");
+                    return "";
+                  }
+                  return data.text ?? "";
+                }}
               />
               <button
                 onClick={handleCreate}
@@ -451,12 +498,16 @@ function TemplateCard({
           <input
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
+            placeholder="模板名称"
+            aria-label="模板名称"
             className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:outline-none focus:border-violet-500/50"
           />
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
             rows={4}
+            placeholder="Prompt 文本"
+            aria-label="Prompt 文本"
             className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500/50 resize-none"
           />
           <div className="flex gap-2">

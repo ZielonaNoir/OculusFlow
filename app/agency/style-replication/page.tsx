@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
@@ -105,7 +106,9 @@ export default function StyleReplicationPage() {
                   onClick={() => document.getElementById('ref-input')?.click()}
                 >
                   {referenceImg ? (
-                    <img src={referenceImg} className="w-full h-full object-cover" alt="Reference" />
+                    <div className="absolute inset-0">
+                      <Image src={referenceImg} fill unoptimized className="object-cover" alt="Reference" />
+                    </div>
                   ) : (
                     <>
                       <Icon icon="lucide:image-plus" className="w-8 h-8 text-white/20 group-hover:text-white/40 mb-2" />
@@ -127,7 +130,9 @@ export default function StyleReplicationPage() {
                   onClick={() => document.getElementById('prod-input')?.click()}
                 >
                   {productImg ? (
-                    <img src={productImg} className="w-full h-full object-cover" alt="Product" />
+                    <div className="absolute inset-0">
+                      <Image src={productImg} fill unoptimized className="object-cover" alt="Product" />
+                    </div>
                   ) : (
                     <>
                       <Icon icon="lucide:package-plus" className="w-8 h-8 text-white/20 group-hover:text-white/40 mb-2" />

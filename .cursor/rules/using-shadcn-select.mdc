@@ -1,5 +1,5 @@
 ---
-description: 所有下拉、单选列表必须使用 shadcn Select，禁止使用原生 select 或自定义下拉
+description: 所有下拉、单选列表必须使用 shadcn Select；agency 页必须严格复用图片精修的下拉样式
 alwaysApply: false
 globs: "**/*.tsx"
 ---
@@ -10,6 +10,8 @@ globs: "**/*.tsx"
 
 - **技能**：阅读并遵循 `.cursor/skills/using-shadcn-select/SKILL.md`
 - **组件路径**：`@/components/ui/select`（Select, SelectTrigger, SelectValue, SelectContent, SelectItem）
-- **已使用处**：InputForm 视觉风格、PromptTemplateManager 新建模板、模板库方案编辑
+- **已使用处**：InputForm 视觉风格、PromptTemplateManager 新建模板、模板库方案编辑、图片精修 / 智能组图
+
+**Agency 页严格复用**：在 `app/agency/*` 下的页面（如智能组图、图片精修、风格复刻）中，Select 的 Trigger、Content、Item 的 `className` 必须与 **图片精修 (retouch)** 完全一致，不得省略或改写悬停/高亮类。具体片段见 skill 中「严格复用：Agency 深色主题下拉」一节。
 
 类似场景（如筛选、设置项、表单里的“选一项”）一律用 shadcn Select 实现。

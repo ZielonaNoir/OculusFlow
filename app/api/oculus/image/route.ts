@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 const VOLCENGINE_API_KEY = process.env.VOLCENGINE_API_KEY || "";
 const ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
 
+/** 前端展示名与火山方舟图片 API 实际 Model ID 的映射（文档示例：doubao-seedream-5-0-260128） */
+const IMAGE_MODEL_ID_MAP: Record<string, string> = {
+  "doubao-seedream-5-0-lite": "doubao-seedream-5-0-260128",
+};
+
 // Modules that skip AI image generation (frontend renders them)
 const FRONTEND_MODULES = ["specs", "footer"];
 
@@ -41,8 +46,12 @@ export async function POST(req: Request) {
       };
     };
 
-    // Use model from Settings, or fall back to Seedream 4.5
-    const imageModel = modelId || "doubao-seedream-4-5-251128";
+    // 优先使用环境变量中的推理接入点 ID；否则使用请求中的 modelId，并映射为方舟文档中的 Model ID。
+    const requestedModel = modelId || "doubao-seedream-4-5-251128";
+    const imageModel =
+      process.env.VOLCENGINE_IMAGE_ENDPOINT_ID ||
+      IMAGE_MODEL_ID_MAP[requestedModel] ||
+      requestedModel;
     const refImageCount = refImages?.length || 0;
     const mode = refImageCount > 0 ? "img2img" : "t2i";
 
@@ -72,7 +81,9 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log(`[ImageGen] model=${imageModel} module=${moduleType} mode=${mode} refImages=${refImageCount}`);
+    console.log(
+      `[ImageGen] model=${imageModel} module=${moduleType} mode=${mode} refImages=${refImageCount} size=${imageOptions?.size ?? "default"}`
+    );
 
     // 火山方舟 4.5 文档 https://www.volcengine.com/docs/82379/1541523
     const opt = imageOptions ?? {};
@@ -117,12 +128,22 @@ export async function POST(req: Request) {
     );
 
     if (!apiResponse.ok) {
-      console.error("[ImageGen] API error:", responseText);
-      return NextResponse.json({
-        image_url: getPlaceholder(moduleType),
-        status: "api_error",
-        error: responseText,
-      });
+      let errMessage = responseText;
+      try {
+        const errJson = JSON.parse(responseText) as { error?: { message?: string }; message?: string };
+        errMessage = errJson?.error?.message ?? errJson?.message ?? responseText;
+      } catch {
+        // use raw responseText
+      }
+      console.error("[ImageGen] Ark API error:", apiResponse.status, errMessage);
+      return NextResponse.json(
+        {
+          image_url: null,
+          status: "api_error",
+          error: errMessage || `火山引擎接口错误 ${apiResponse.status}`,
+        },
+        { status: 502 }
+      );
     }
 
     const result = JSON.parse(responseText);
