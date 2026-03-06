@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_SC } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { SidebarLayout } from "@/components/SidebarLayout";
 import { UserProvider } from "@/components/UserProvider";
 import { createClient } from "@/utils/supabase/server";
+import { TopographicBackground } from "@/components/TopographicBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,6 +14,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const notoSansSC = Noto_Sans_SC({
+  variable: "--font-noto-sans-sc",
+  weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -51,8 +58,9 @@ export default async function RootLayout({
   return (
     <html lang="zh-CN" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-950 text-foreground font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} antialiased bg-zinc-950 text-foreground font-sans`}
       >
+        <TopographicBackground />
         <UserProvider user={user} profile={profile} credits={credits}>
           <SidebarLayout>{children}</SidebarLayout>
         </UserProvider>

@@ -55,6 +55,18 @@ export function SidebarLayout({
           </div>
         </main>
       </div>
+
+      {/* Floating Beta Feedback Button */}
+      <a
+        href="mailto:feedback@oculusflow.ai"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition-all shadow-2xl hover:shadow-white/5"
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+        </span>
+        Beta
+      </a>
     </div>
   );
 }
