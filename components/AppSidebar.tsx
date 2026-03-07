@@ -20,6 +20,7 @@ const sidebarItems = [
   { title: "主播排班", href: "/host-scheduling", icon: "lucide:calendar-clock" },
   { title: "AI 盯盘", href: "/campaign-monitor", icon: "lucide:radar" },
   { title: "Oculus Flow", href: "/oculus-flow", icon: "lucide:zap" },
+  { title: "Auto-Cut", href: "/auto-cut", icon: "lucide:film" },
   { title: "Pricing", href: "/pricing", icon: "lucide:credit-card" },
 ];
 

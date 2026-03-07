@@ -7,6 +7,13 @@ import { cn } from "@/lib/utils";
 import { getModelPrice } from "@/lib/pricing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -32,6 +39,12 @@ interface ModelsResponse {
 const STORAGE_KEY_TEXT = "oculus_text_model";
 const STORAGE_KEY_IMAGE = "oculus_image_model";
 const STORAGE_KEY_VIDEO = "oculus_video_model";
+const STORAGE_KEY_AUTOCUT_VOICE_PROVIDER = "autocut_voice_provider";
+const STORAGE_KEY_AUTOCUT_VOICE_MODEL = "autocut_voice_model";
+const STORAGE_KEY_AUTOCUT_FISH_VOICE_ID = "autocut_fish_voice_id";
+const STORAGE_KEY_AUTOCUT_CLIP_PRIORITY = "autocut_clip_provider_priority";
+const STORAGE_KEY_AUTOCUT_SUBTITLE_STYLE = "autocut_subtitle_style";
+const STORAGE_KEY_AUTOCUT_LOCALE_MAPPING = "autocut_default_locale_mapping";
 
 const DEFAULT_IMAGE_MODELS = [
   {
@@ -76,6 +89,12 @@ export function SettingsPanel() {
   const [selectedVideoModel, setSelectedVideoModel] = useState<string>(
     DEFAULT_VIDEO_MODELS[0].id
   );
+  const [autoCutVoiceProvider, setAutoCutVoiceProvider] = useState("fishaudio");
+  const [autoCutVoiceModel, setAutoCutVoiceModel] = useState("speech-1");
+  const [autoCutFishVoiceId, setAutoCutFishVoiceId] = useState("anna");
+  const [autoCutClipPriority, setAutoCutClipPriority] = useState('["apify","yarn","playphrase","pexels"]');
+  const [autoCutSubtitleStyle, setAutoCutSubtitleStyle] = useState("word_highlight");
+  const [autoCutLocaleMapping, setAutoCutLocaleMapping] = useState(true);
   const [saved, setSaved] = useState(false);
 
   const fetchModels = useCallback(async () => {
@@ -100,9 +119,21 @@ export function SettingsPanel() {
     const savedText = localStorage.getItem(STORAGE_KEY_TEXT);
     const savedImage = localStorage.getItem(STORAGE_KEY_IMAGE);
     const savedVideo = localStorage.getItem(STORAGE_KEY_VIDEO);
+    const savedAutoCutVoiceProvider = localStorage.getItem(STORAGE_KEY_AUTOCUT_VOICE_PROVIDER);
+    const savedAutoCutVoiceModel = localStorage.getItem(STORAGE_KEY_AUTOCUT_VOICE_MODEL);
+    const savedAutoCutFishVoiceId = localStorage.getItem(STORAGE_KEY_AUTOCUT_FISH_VOICE_ID);
+    const savedAutoCutClipPriority = localStorage.getItem(STORAGE_KEY_AUTOCUT_CLIP_PRIORITY);
+    const savedAutoCutSubtitleStyle = localStorage.getItem(STORAGE_KEY_AUTOCUT_SUBTITLE_STYLE);
+    const savedAutoCutLocaleMapping = localStorage.getItem(STORAGE_KEY_AUTOCUT_LOCALE_MAPPING);
     if (savedText) setSelectedTextModel(savedText);
     if (savedImage) setSelectedImageModel(savedImage);
     if (savedVideo) setSelectedVideoModel(savedVideo);
+    if (savedAutoCutVoiceProvider) setAutoCutVoiceProvider(savedAutoCutVoiceProvider);
+    if (savedAutoCutVoiceModel) setAutoCutVoiceModel(savedAutoCutVoiceModel);
+    if (savedAutoCutFishVoiceId) setAutoCutFishVoiceId(savedAutoCutFishVoiceId);
+    if (savedAutoCutClipPriority) setAutoCutClipPriority(savedAutoCutClipPriority);
+    if (savedAutoCutSubtitleStyle) setAutoCutSubtitleStyle(savedAutoCutSubtitleStyle);
+    if (savedAutoCutLocaleMapping) setAutoCutLocaleMapping(savedAutoCutLocaleMapping !== "false");
   }, [fetchModels]);
 
   // Auto-select first model when models load
@@ -116,6 +147,12 @@ export function SettingsPanel() {
     localStorage.setItem(STORAGE_KEY_TEXT, selectedTextModel);
     localStorage.setItem(STORAGE_KEY_IMAGE, selectedImageModel);
     localStorage.setItem(STORAGE_KEY_VIDEO, selectedVideoModel);
+    localStorage.setItem(STORAGE_KEY_AUTOCUT_VOICE_PROVIDER, autoCutVoiceProvider);
+    localStorage.setItem(STORAGE_KEY_AUTOCUT_VOICE_MODEL, autoCutVoiceModel);
+    localStorage.setItem(STORAGE_KEY_AUTOCUT_FISH_VOICE_ID, autoCutFishVoiceId);
+    localStorage.setItem(STORAGE_KEY_AUTOCUT_CLIP_PRIORITY, autoCutClipPriority);
+    localStorage.setItem(STORAGE_KEY_AUTOCUT_SUBTITLE_STYLE, autoCutSubtitleStyle);
+    localStorage.setItem(STORAGE_KEY_AUTOCUT_LOCALE_MAPPING, String(autoCutLocaleMapping));
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -445,6 +482,98 @@ export function SettingsPanel() {
                     )}
                   </motion.label>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-black/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base text-white">Media Pipeline</CardTitle>
+              <CardDescription>
+                Auto-Cut 混剪工作台的配音、字幕和素材检索默认配置。
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 pt-0 md:grid-cols-2">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-wider text-zinc-400">配音 Provider</p>
+                <Select value={autoCutVoiceProvider} onValueChange={setAutoCutVoiceProvider}>
+                  <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent className="border-white/10 bg-zinc-950 text-white">
+                    <SelectItem value="fishaudio">Fish Audio</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-wider text-zinc-400">配音模型</p>
+                <Select value={autoCutVoiceModel} onValueChange={setAutoCutVoiceModel}>
+                  <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent className="border-white/10 bg-zinc-950 text-white">
+                    <SelectItem value="speech-1">speech-1</SelectItem>
+                    <SelectItem value="speech-1-hd">speech-1-hd</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-wider text-zinc-400">Fish 音色</p>
+                <Select value={autoCutFishVoiceId} onValueChange={setAutoCutFishVoiceId}>
+                  <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent className="border-white/10 bg-zinc-950 text-white">
+                    <SelectItem value="anna">Anna</SelectItem>
+                    <SelectItem value="leo">Leo</SelectItem>
+                    <SelectItem value="nova">Nova</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-wider text-zinc-400">字幕样式</p>
+                <Select value={autoCutSubtitleStyle} onValueChange={setAutoCutSubtitleStyle}>
+                  <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent className="border-white/10 bg-zinc-950 text-white">
+                    <SelectItem value="word_highlight">逐词高亮</SelectItem>
+                    <SelectItem value="bounce">弹跳字幕</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <p className="text-xs uppercase tracking-wider text-zinc-400">素材源优先级</p>
+                <Select value={autoCutClipPriority} onValueChange={setAutoCutClipPriority}>
+                  <SelectTrigger className="border-white/10 bg-white/5 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent className="border-white/10 bg-zinc-950 text-white">
+                    <SelectItem value='["apify","yarn","playphrase","pexels"]'>Apify → Yarn → PlayPhrase → Pexels</SelectItem>
+                    <SelectItem value='["apify","playphrase","yarn","pexels"]'>Apify → PlayPhrase → Yarn → Pexels</SelectItem>
+                    <SelectItem value='["pexels","apify","yarn","playphrase"]'>Pexels 优先兜底</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="md:col-span-2 flex items-center justify-between rounded-xl border border-white/10 bg-black/30 px-3 py-3">
+                <div>
+                  <p className="text-sm text-white">经典台词语言映射</p>
+                  <p className="text-xs text-zinc-500">中文输入默认先映射到英文经典台词再检索片段</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAutoCutLocaleMapping((prev) => !prev)}
+                  className={cn(
+                    "flex h-6 w-11 items-center rounded-full border px-1 transition-all",
+                    autoCutLocaleMapping ? "border-emerald-400/50 bg-emerald-500/20" : "border-white/10 bg-white/5"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "h-4 w-4 rounded-full bg-white transition-transform",
+                      autoCutLocaleMapping ? "translate-x-5" : "translate-x-0"
+                    )}
+                  />
+                </button>
+              </div>
+              <div className="md:col-span-2 rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-zinc-400">
+                <p className="font-medium text-zinc-200">运行所需环境变量</p>
+                <div className="mt-2 grid gap-1 font-mono">
+                  <span>AUTOCUT_ENGINE_URL</span>
+                  <span>FISHAUDIO_API_KEY</span>
+                  <span>APIFY_TOKEN</span>
+                  <span>PEXELS_API_KEY</span>
+                </div>
               </div>
             </CardContent>
           </Card>

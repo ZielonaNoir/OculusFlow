@@ -69,14 +69,6 @@ const SelectScrollDownButton = React.forwardRef<
 SelectScrollDownButton.displayName =
   SelectPrimitive.ScrollDownButton.displayName
 
-const DEBUG_LOG = (payload: Record<string, unknown>) => {
-  fetch("http://127.0.0.1:7609/ingest/daaae783-6bee-4f00-83f3-73eb61d67563", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "217616" },
-    body: JSON.stringify({ sessionId: "217616", ...payload, timestamp: Date.now() }),
-  }).catch(() => {});
-};
-
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
@@ -90,26 +82,6 @@ const SelectContent = React.forwardRef<
     },
     [ref]
   );
-  React.useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-    const root = el.getRootNode() as Document | ShadowRoot;
-    const doc = root instanceof Document ? root : (root as ShadowRoot).host.ownerDocument;
-    let p: Element | null = el.parentElement;
-    let hasDark = doc.documentElement.classList.contains("dark");
-    const parentClasses: string[] = [];
-    while (p) {
-      parentClasses.push(p.className?.toString() || "");
-      if (p.classList?.contains("dark")) hasDark = true;
-      p = p.parentElement;
-    }
-    DEBUG_LOG({
-      hypothesisId: "A",
-      location: "select.tsx:SelectContent",
-      message: "SelectContent mount: theme scope",
-      data: { hasDark, htmlClass: doc.documentElement.className, parentClasses: parentClasses.slice(0, 3) },
-    });
-  }, []);
   return (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
@@ -169,31 +141,6 @@ const SelectItem = React.forwardRef<
     "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors duration-150 text-white focus:bg-accent focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-accent data-[highlighted]:text-white [&_[data-radix-select-item-text]]:text-inherit",
     className
   );
-  React.useEffect(() => {
-    const el = itemRef.current;
-    if (!el) return;
-    const onEnter = () => {
-      const s = getComputedStyle(el);
-      const textEl = el.querySelector("[data-radix-select-item-text]") || el;
-      const textStyle = textEl !== el ? getComputedStyle(textEl as HTMLElement) : s;
-      DEBUG_LOG({
-        hypothesisId: "B,C,D",
-        location: "select.tsx:SelectItem",
-        message: "SelectItem hover computed styles",
-        data: {
-          itemColor: s.color,
-          itemBg: s.backgroundColor,
-          itemDataHighlighted: el.getAttribute("data-highlighted"),
-          itemClass: el.className,
-          resolvedClass: resolvedClassName,
-          textElColor: textStyle.color,
-          textElTag: (textEl as Element).tagName,
-        },
-      });
-    };
-    el.addEventListener("pointerenter", onEnter);
-    return () => el.removeEventListener("pointerenter", onEnter);
-  }, [resolvedClassName]);
   return (
   <SelectPrimitive.Item
     ref={mergedRef}
